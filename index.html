@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HZLT PHISHHUNT - 钓鱼邮件找茬训练</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Phishing Challenge Trainer
+   Aesthetic: Cyber-noir SOC terminal × refined email client
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surface */
+  --bg-deep: #0a0c10;
+  --bg-base: #0f1218;
+  --bg-raised: #161b24;
+  --bg-card: #1a1f2b;
+  --bg-hover: #222938;
+  --bg-active: #2a3345;
+
+  /* Text */
+  --text-primary: #e8ecf1;
+  --text-secondary: #8893a7;
+  --text-muted: #505a6e;
+  --text-inverse: #0a0c10;
+
+  /* Accent */
+  --amber: #f0a030;
+  --amber-dim: #b87a20;
+  --amber-glow: rgba(240,160,48,0.15);
+  --amber-bright: #ffc048;
+
+  /* Semantic */
+  --red: #f04848;
+  --red-dim: #c03030;
+  --red-glow: rgba(240,72,72,0.12);
+  --green: #40c870;
+  --green-dim: #289050;
+  --green-glow: rgba(64,200,112,0.12);
+  --blue: #4890f0;
+
+  /* Border */
+  --border: #1e2530;
+  --border-light: #2a3345;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  /* Typography */
+  --font-display: 'JetBrains Mono', monospace;
+  --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Score grades */
+  --grade-s: #ffc048;
+  --grade-a: #40c870;
+  --grade-b: #4890f0;
+  --grade-c: #f0a030;
+  --grade-d: #f04848;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 15px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(240,160,48,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(72,144,240,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Noise overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Scrolling ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Header ─── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(15,18,24,0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 100;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.logo-text {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.logo-hzlt { color: #4a90e2; }
+.logo-phish { color: #ffffff; }
+.logo-hunt { color: #f0a030; }
+
+.header-logo .shield {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dim) 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--bg-deep);
+  font-weight: 700;
+}
+
+.header-progress {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 40px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-light);
+  transition: all 0.3s;
+}
+
+.progress-dot.active {
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber-glow);
+}
+
+.progress-dot.done-correct {
+  background: var(--green);
+}
+
+.progress-dot.done-wrong {
+  background: var(--red);
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.stat-val {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+/* ─── Views Container ─── */
+.views {
+  position: relative;
+  z-index: 1;
+  padding-top: 56px;
+  min-height: 100vh;
+}
+
+.view {
+  display: none;
+  animation: viewIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.view.active { display: block; }
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LANDING VIEW
+   ═══════════════════════════════════════════════════════════ */
+
+.landing {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.landing-hero {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.landing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--amber-glow);
+  border: 1px solid rgba(240,160,48,0.2);
+  border-radius: 20px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.landing-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--amber) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+
+.landing-features {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+/* Scenario Cards */
+.section-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-left: 2px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.scenario-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--amber));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.scenario-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.scenario-card:hover::before { opacity: 1; }
+
+.scenario-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--amber-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.scenario-card[data-scenario="urgency"] { --card-accent: #f04848; }
+.scenario-card[data-scenario="urgency"] .scenario-icon { background: rgba(240,72,72,0.1); }
+
+.scenario-card[data-scenario="impersonation"] { --card-accent: #4890f0; }
+.scenario-card[data-scenario="impersonation"] .scenario-icon { background: rgba(72,144,240,0.1); }
+
+.scenario-card[data-scenario="financial"] { --card-accent: #f0a030; }
+.scenario-card[data-scenario="financial"] .scenario-icon { background: rgba(240,160,48,0.1); }
+
+.scenario-card[data-scenario="techsupport"] { --card-accent: #40c870; }
+.scenario-card[data-scenario="techsupport"] .scenario-icon { background: rgba(64,200,112,0.1); }
+
+.scenario-card[data-scenario="delivery"] { --card-accent: #a078f0; }
+.scenario-card[data-scenario="delivery"] .scenario-icon { background: rgba(160,120,240,0.1); }
+
+.scenario-card[data-scenario="data"] { --card-accent: #f06090; }
+.scenario-card[data-scenario="data"] .scenario-icon { background: rgba(240,96,144,0.1); }
+
+.scenario-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.scenario-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.scenario-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+}
+
+.scenario-count { color: var(--amber); font-weight: 600; }
+
+/* Start All Button */
+.landing-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--amber);
+  color: var(--bg-deep);
+}
+
+.btn-primary:hover {
+  background: var(--amber-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(240,160,48,0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRACTICE VIEW — Email Client
+   ═══════════════════════════════════════════════════════════ */
+
+.practice {
+  display: flex;
+  height: calc(100vh - 56px);
+  gap: 0;
+}
+
+/* Email panel */
+.email-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.email-container {
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Email client chrome */
+.email-client {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 8px 40px rgba(0,0,0,0.4);
+}
+
+.email-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* Email header */
+.email-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.email-subject {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.email-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.email-meta-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 40px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.email-meta-value {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.email-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--amber-dim), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--bg-deep);
+  flex-shrink: 0;
+}
+
+.email-sender-info {
+  flex: 1;
+}
+
+.email-sender-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.email-sender-addr {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.email-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Email body */
+.email-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.email-body p { margin-bottom: 14px; }
+.email-body p:last-child { margin-bottom: 0; }
+
+.email-greeting {
+  font-weight: 500;
+  margin-bottom: 16px !important;
+}
+
+/* Email attachments */
+.email-attachments {
+  padding: 0 24px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.attachment .icon { font-size: 16px; }
+
+/* Email footer */
+.email-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-btn {
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.footer-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+/* ─── Risk Points — the core interactive elements ─── */
+.risk-point {
+  position: relative;
+  cursor: text;
+  padding-bottom: 1px;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+/* Subtle hint on hover - this is when you discover it's clickable */
+.risk-point:hover {
+  cursor: pointer;
+  border-bottom: 2px dashed var(--red-dim);
+  background: rgba(240,72,72,0.08);
+}
+
+.risk-point.selected {
+  border-bottom: 2px solid var(--red);
+  background: rgba(240,72,72,0.15);
+  border-radius: 3px;
+}
+
+.risk-point.selected::after {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background: var(--red);
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  animation: checkPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes checkPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+/* Results state risk points */
+.risk-point.result-correct {
+  border-bottom: 2px solid var(--green);
+  background: var(--green-glow);
+  cursor: default;
+}
+
+.risk-point.result-correct::after {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background: var(--green);
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.risk-point.result-missed {
+  border-bottom: 2px solid var(--red);
+  background: rgba(240,72,72,0.1);
+  cursor: default;
+  animation: missedPulse 1.5s ease-in-out 2;
+}
+
+@keyframes missedPulse {
+  0%, 100% { background: rgba(240,72,72,0.1); }
+  50% { background: rgba(240,72,72,0.2); }
+}
+
+.risk-point.result-missed::after {
+  content: '✗';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background: var(--red);
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.risk-point.result-false {
+  border-bottom: 2px dashed var(--text-muted);
+  background: rgba(80,90,110,0.1);
+  cursor: default;
+}
+
+/* Email CTA button (also clickable if it's a risk point) */
+.email-cta {
+  display: inline-block;
+  padding: 10px 28px;
+  background: var(--amber);
+  color: var(--bg-deep);
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  margin: 12px 0;
+  transition: all 0.2s;
+}
+
+.email-cta.risk-point {
+  cursor: pointer;
+}
+
+.email-cta.risk-point:hover {
+  background: var(--amber-bright);
+  transform: translateY(-1px);
+}
+
+.email-cta.risk-point.selected {
+  background: var(--red);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(240,72,72,0.3);
+}
+
+.email-link {
+  color: var(--blue);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.email-link.risk-point {
+  border-bottom: none;
+  text-decoration-color: var(--red-dim);
+  text-decoration-style: wavy;
+}
+
+.email-link.risk-point.selected {
+  text-decoration-color: var(--red);
+  background: rgba(240,72,72,0.1);
+  border-radius: 2px;
+}
+
+/* ─── Side Panel ─── */
+.side-panel {
+  width: 380px;
+  min-width: 380px;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.panel-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-section:last-child { border-bottom: none; }
+
+.panel-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* Scenario & difficulty tags */
+.email-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.tag-scenario {
+  background: var(--amber-glow);
+  color: var(--amber);
+  border: 1px solid rgba(240,160,48,0.2);
+}
+
+.tag-diff {
+  background: rgba(72,144,240,0.1);
+  color: var(--blue);
+  border: 1px solid rgba(72,144,240,0.2);
+}
+
+/* Instruction box */
+.instruction-box {
+  padding: 14px 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+}
+
+.instruction-box .icon { margin-right: 6px; }
+
+.instruction-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.instruction-text strong { color: var(--amber); font-weight: 600; }
+
+/* Selected items list */
+.selected-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--text-primary);
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.selected-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+.selected-item .remove {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.selected-item .remove:hover { color: var(--red); }
+
+.empty-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* Action buttons */
+.panel-actions {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-base);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  bottom: 0;
+}
+
+.btn-submit {
+  background: var(--red);
+  color: white;
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: 15px;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-submit:hover {
+  background: #ff5050;
+  box-shadow: 0 4px 20px rgba(240,72,72,0.3);
+}
+
+.btn-submit:disabled {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-skip, .btn-next {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+  font-size: 14px;
+}
+
+/* ─── Results Panel ─── */
+.result-score-section {
+  text-align: center;
+  padding: 28px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.score-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.score-circle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+}
+
+.score-circle.grade-s::before { border-color: var(--grade-s); box-shadow: 0 0 20px rgba(255,192,72,0.2); }
+.score-circle.grade-a::before { border-color: var(--grade-a); box-shadow: 0 0 20px rgba(64,200,112,0.2); }
+.score-circle.grade-b::before { border-color: var(--grade-b); }
+.score-circle.grade-c::before { border-color: var(--grade-c); }
+.score-circle.grade-d::before { border-color: var(--grade-d); box-shadow: 0 0 20px rgba(240,72,72,0.2); }
+
+.score-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.score-grade {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.score-message {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Result stats bar */
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-stat {
+  text-align: center;
+  padding: 10px 8px;
+  background: var(--bg-raised);
+  border-radius: var(--r-sm);
+}
+
+.result-stat-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.result-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.stat-correct .result-stat-num { color: var(--green); }
+.stat-missed .result-stat-num { color: var(--red); }
+.stat-false .result-stat-num { color: var(--text-muted); }
+
+/* Risk breakdown */
+.risk-breakdown {
+  padding: 16px 24px;
+}
+
+.risk-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.4s ease-out backwards;
+}
+
+.risk-card:nth-child(1) { animation-delay: 0.1s; }
+.risk-card:nth-child(2) { animation-delay: 0.2s; }
+.risk-card:nth-child(3) { animation-delay: 0.3s; }
+.risk-card:nth-child(4) { animation-delay: 0.4s; }
+.risk-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.risk-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.risk-status {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.risk-status.hit { background: var(--green); color: white; }
+.risk-status.miss { background: var(--red); color: white; }
+
+.risk-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.risk-card-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.risk-card-body strong { color: var(--text-primary); font-weight: 600; }
+
+.risk-explanation {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--bg-card);
+  border-left: 3px solid var(--red-dim);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.risk-explanation.correct-action {
+  border-left-color: var(--green-dim);
+}
+
+.risk-explanation-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.risk-explanation-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLETE VIEW
+   ═══════════════════════════════════════════════════════════ */
+
+.complete {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.complete-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--green-glow);
+  border: 2px solid var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 24px;
+}
+
+.complete-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.complete-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.final-stat {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px 16px;
+}
+
+.final-stat-num {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.final-stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .practice {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .side-panel {
+    width: 100%;
+    min-width: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .email-panel { padding: 16px; }
+
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-features { gap: 16px; }
+
+  .header-progress { display: none; }
+}
+
+/* Utility */
+.hidden { display: none !important; }
+.mono { font-family: var(--font-display); }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-logo" onclick="app.goHome()">
+    <img class="logo-img" src="logo.png" alt="HZLT" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <div class="logo-fallback" style="display:none;width:28px;height:28px;background:linear-gradient(135deg,#4a90e2,#f0a030);border-radius:6px;align-items:center;justify-content:center;font-weight:700;font-size:15px;">H</div>
+    <span class="logo-text"><span class="logo-hzlt">HZLT</span> <span class="logo-phish">PHISH</span><span class="logo-hunt">HUNT</span></span>
+  </div>
+
+  <div class="header-progress" id="headerProgress"></div>
+
+  <div class="header-stats" id="headerStats">
+    <span>SCORE <span class="stat-val" id="headerScore">0</span></span>
+    <span style="color:var(--border-light)">|</span>
+    <span>EMAILS <span class="stat-val" id="headerEmails">0/0</span></span>
+  </div>
+</header>
+
+<!-- ═══ VIEWS ═══ -->
+<div class="views">
+
+  <!-- ─── LANDING ─── -->
+  <div class="view active" id="viewLanding">
+    <div class="landing">
+      <div class="landing-hero">
+        <div class="landing-badge">&#9670; AWARENESS TRAINING v1.0</div>
+        <h1 class="landing-title"><span class="logo-hzlt">HZLT</span> 钓鱼邮件找茬训练</h1>
+        <p class="landing-subtitle">
+          阅读模拟钓鱼邮件，找出所有可疑风险点。<br>
+          每封邮件都隐藏着多个精心设计的陷阱，你能全部识别吗？
+        </p>
+        <div class="landing-features">
+          <div class="feature-item"><div class="feature-dot"></div>6种常见钓鱼场景</div>
+          <div class="feature-item"><div class="feature-dot"></div>真实还原邮件客户端</div>
+          <div class="feature-item"><div class="feature-dot"></div>逐点结构化解读</div>
+        </div>
+      </div>
+
+      <div class="section-label">选择训练场景</div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+
+      <div class="landing-actions">
+        <button class="btn btn-primary" onclick="app.startAll()">开始全部训练</button>
+        <button class="btn btn-ghost" onclick="app.startRandom()">随机一封</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PRACTICE ─── -->
+  <div class="view" id="viewPractice">
+    <div class="practice">
+      <div class="email-panel">
+        <div class="email-container">
+          <div class="email-client" id="emailClient">
+            <!-- Toolbar -->
+            <div class="email-toolbar">
+              <button class="toolbar-btn" title="回复">&#8634;</button>
+              <button class="toolbar-btn" title="转发">&#8594;</button>
+              <div class="toolbar-sep"></div>
+              <button class="toolbar-btn" title="标记">&#9733;</button>
+              <button class="toolbar-btn" title="归档">&#8681;</button>
+              <button class="toolbar-btn" title="删除">&#128465;</button>
+            </div>
+            <!-- Email content rendered by JS -->
+            <div id="emailContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel" id="sidePanel">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── COMPLETE ─── -->
+  <div class="view" id="viewComplete">
+    <div class="complete" id="completeContent"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  EMAIL DATA — JSON-driven content
+// ═══════════════════════════════════════════════════════════
+
+const SCENARIOS = {
+  urgency:        { name: '紧急施压型',   icon: '⚡', desc: '通过紧迫感迫使你降低警惕，仓促行动' },
+  impersonation:  { name: '身份伪装型',   icon: '👤', desc: '冒充领导、同事或合作伙伴发送邮件' },
+  financial:      { name: '财务诱骗型',   icon: '💰', desc: '以退款、补贴、奖金等名义诱导提供财务信息' },
+  delivery:       { name: '快递通知型',   icon: '📦', desc: '伪装快递、物流通知诱导点击恶意链接' },
+  techsupport:    { name: '技术支持型',   icon: '🔧', desc: '伪装IT部门要求修改密码或安装软件' },
+  data:           { name: '数据泄露型',   icon: '🔐', desc: '利用数据泄露恐慌诱导立即操作' }
+};
+
+const DIFFICULTY_LABELS = ['', '入门', '基础', '进阶', '高阶', '专家'];
+
+const EMAILS = [
+  // ──────── EMAIL 1: 紧急密码重置 ────────
+  {
+    id: 'e001',
+    scenario: 'urgency',
+    difficulty: 3,
+    title: '紧急密码重置通知',
+    email: {
+      subject: '【紧急】您的邮箱账户将在24小时内被永久锁定',
+      from: { name: '企业IT安全中心', email: 'security-alert@company-support.net' },
+      to: 'wangming@company.com',
+      date: '2026年5月28日 16:32',
+      body: `<p class="email-greeting">尊敬的用户：</p>
+<p>我们的安全系统检测到您的企业邮箱 <strong>wangming@company.com</strong> 存在<strong><span class="risk-point" data-risk-id="e001-r1">异常登录活动</span></strong>。系统记录显示，<span class="risk-point" data-risk-id="e001-r2">有来自境外IP地址的未授权访问尝试</span>。</p>
+<p>为保护您的账户安全，<span class="risk-point" data-risk-id="e001-r3">您的账户将在24小时后被永久锁定</span>。请立即点击下方按钮验证您的身份并重置密码：</p>
+<p style="text-align:center;margin:20px 0">
+  <a class="email-cta risk-point" data-risk-id="e001-r4" href="#">立即验证身份 &amp; 重置密码</a>
+</p>
+<p style="font-size:12px;color:#888">如果按钮无法点击，请复制以下链接到浏览器打开：<br>
+<span class="risk-point" data-risk-id="e001-r5">http://company-support.net/auth/verify?id=38a7f2&amp;token=x9k2m</span></p>
+<p>如您未在 <span class="risk-point" data-risk-id="e001-r6">2小时内</span>完成验证，我们将不得不 <span class="risk-point" data-risk-id="e001-r7">永久删除该账户中的所有邮件和数据</span>。</p>
+<p style="margin-top:20px;color:#666;font-size:12px">此邮件由系统自动发送，请勿回复。<br>企业IT安全中心 | <span class="risk-point" data-risk-id="e001-r8">© 2026 Microsoft Corporation. 保留所有权利。</span></p>`,
+      attachments: []
+    },
+    riskPoints: [
+      { id: 'e001-r1', label: '模糊的"异常登录"说辞', severity: 'medium',
+        explanation: '邮件没有提供任何具体的异常登录详情（时间、地点、设备类型），仅用"异常登录活动"这一模糊说辞制造恐慌，是钓鱼邮件的典型特征。',
+        correctAction: '真正的安全告警通常会包含具体的登录时间、IP地址或地理位置信息。收到此类邮件应直接联系IT部门核实。' },
+      { id: 'e001-r2', label: '"境外IP"模糊威胁', severity: 'medium',
+        explanation: '声称有境外IP访问但不提供任何具体信息。合法的安全通知会展示具体的IP地址和地理位置。',
+        correctAction: '不要基于模糊信息采取行动。通过公司官方渠道（非邮件中的链接）验证账户状态。' },
+      { id: 'e001-r3', label: '"24小时永久锁定"施压', severity: 'high',
+        explanation: '利用紧迫性迫使收件人在不加思考的情况下行动。"永久锁定"是极端后果，配合24小时倒计时，是典型的社工施压手法。',
+        correctAction: 'IT部门不会仅通过一封邮件就威胁永久锁定账户。真正的账户锁定会有多重通知渠道（短信、电话等）。' },
+      { id: 'e001-r4', label: '可疑的CTA按钮', severity: 'high',
+        explanation: '按钮文字"立即验证身份 & 重置密码"配合紧急施压，引导用户点击恶意链接。按钮实际指向的URL与显示文字可能完全不同。',
+        correctAction: '永远不要点击可疑邮件中的按钮。如需重置密码，请直接在浏览器中输入公司官网地址操作。' },
+      { id: 'e001-r5', label: '非公司域名链接', severity: 'critical',
+        explanation: '链接域名是 company-support.net 而非公司官方域名。钓鱼者注册了与公司名称相似的域名来迷惑用户。这是最关键的识别标志之一。',
+        correctAction: '仔细检查链接域名。公司IT服务一定使用公司官方域名，不会使用外部域名。' },
+      { id: 'e001-r6', label: '"2小时内"极端时限', severity: 'high',
+        explanation: '进一步缩短响应时间至2小时，加剧紧迫感。真实的IT操作不会设置如此短的响应时限。',
+        correctAction: '任何要求你在极短时间内采取行动的邮件都应提高警惕。先通过其他渠道验证。' },
+      { id: 'e001-r7', label: '"永久删除数据"威胁', severity: 'high',
+        explanation: '以删除所有邮件和数据作为威胁，这是极端的恐吓手段。IT部门不会因密码未重置就删除用户数据。',
+        correctAction: '公司有完整的数据备份策略，IT部门不会以删除数据来威胁员工。这是明显的社工话术。' },
+      { id: 'e001-r8', label: '假冒微软版权声明', severity: 'medium',
+        explanation: '在邮件底部添加看似正规的微软版权声明，试图增加邮件的可信度。但企业IT通知不需要微软的版权声明。',
+        correctAction: '注意邮件底部的版权和发件方信息是否与实际发件方匹配。' }
+    ]
+  },
+
+  // ──────── EMAIL 2: 领导转账 ────────
+  {
+    id: 'e002',
+    scenario: 'impersonation',
+    difficulty: 4,
+    title: '领导紧急转账请求',
+    email: {
+      subject: 'Re: 有一笔紧急款项需要今天处理',
+      from: { name: '王总 (CEO)', email: 'wang.zong@company-group.cn' },
+      to: 'lihua@company.com',
+      date: '2026年5月29日 11:47',
+      body: `<p><span class="risk-point" data-risk-id="e002-r1">小李</span>，</p>
+<p><span class="risk-point" data-risk-id="e002-r2">我现在在外面开会，手机快没电了</span>。有一笔款项比较着急，<span class="risk-point" data-risk-id="e002-r3">需要今天下午3点前完成转账</span>，不然会影响一个重要合作。</p>
+<p>收款信息如下：</p>
+<p style="background:var(--bg-raised);padding:12px;border-radius:6px;font-size:13px;margin:12px 0;color:var(--text-secondary);border:1px solid var(--border)">
+户名：上海XX科技有限公司<br>
+账号：<span class="risk-point" data-risk-id="e002-r4">6228 4800 3821 7756 018</span><br>
+开户行：工商银行上海浦东支行<br>
+金额：<span class="risk-point" data-risk-id="e002-r5">¥ 186,000</span>
+</p>
+<p><span class="risk-point" data-risk-id="e002-r6">这件事先不要跟其他人说</span>，<span class="risk-point" data-risk-id="e002-r7">我回来后再补手续</span>。金额比较大但时间紧急，<span class="risk-point" data-risk-id="e002-r8">你先帮我处理一下，回头我签字审批</span>。</p>
+<p>转完了跟我说一声。</p>
+<p style="margin-top:16px;color:#666">王建国<br>CEO</p>`,
+      attachments: []
+    },
+    riskPoints: [
+      { id: 'e002-r1', label: '过于亲昵的称呼', severity: 'medium',
+        explanation: '使用"小李"这样过于亲昵的称呼来降低你的戒备心理，营造"领导信任你"的感觉。真实领导邮件通常使用正式称呼。',
+        correctAction: '收到此类邮件时，先通过电话或当面向领导确认。' },
+      { id: 'e002-r2', label: '"手机没电"制造联系障碍', severity: 'high',
+        explanation: '通过"在外面开会、手机快没电"制造一个你无法通过电话确认的理由，迫使你只能通过邮件沟通。这是BEC（商务邮件诈骗）的经典话术。',
+        correctAction: '越是要求你不能电话确认的请求，越需要警惕。通过其他渠道（如秘书、助理）核实领导行踪。' },
+      { id: 'e002-r3', label: '"下午3点前"紧急时限', severity: 'high',
+        explanation: '设定一个看似即将到来的紧迫期限，压缩你的思考和验证时间。',
+        correctAction: '大额转账必须经过正规审批流程，不会因"时间紧急"而绕过。' },
+      { id: 'e002-r4', label: '陌生收款账户', severity: 'critical',
+        explanation: '收款账户是一家你从未听说的公司。正规业务转账应有对应的合同和审批记录，不会临时提供一个陌生账户。',
+        correctAction: '核实收款方身份：是否有合同？是否有采购订单？财务部门是否知晓？' },
+      { id: 'e002-r5', label: '大额转账无审批', severity: 'critical',
+        explanation: '18.6万元的大额转账没有任何正式的审批流程、合同编号或业务背景说明。任何正规企业都不会以这种方式处理大额付款。',
+        correctAction: '大额付款必须经过：合同确认→采购审批→财务审批→付款执行的完整流程。' },
+      { id: 'e002-r6', label: '"不要跟其他人说"保密要求', severity: 'critical',
+        explanation: '要求保密是阻止你与同事或财务部门核实的经典手法。正规的业务操作不需要对相关人员保密。',
+        correctAction: '任何要求保密的财务操作都应立即引起警惕。应主动与财务、行政或IT安全部门沟通。' },
+      { id: 'e002-r7', label: '"回来后补手续"承诺', severity: 'high',
+        explanation: '用"回来后补手续"来合理化跳过正规流程的行为。实际操作中，事后补手续是严重的内控违规。',
+        correctAction: '先斩后奏违反企业内控。所有大额转账都应先有完整的审批手续。' },
+      { id: 'e002-r8', label: '"你先帮我处理"责任转嫁', severity: 'high',
+        explanation: '将财务操作的责任转嫁给你，让你成为违规操作的执行者。一旦转账完成，你将成为主要责任人。',
+        correctAction: '员工无权代替管理层执行未经审批的财务操作。应要求提供正式的书面授权。' }
+    ]
+  },
+
+  // ──────── EMAIL 3: 快递通知 ────────
+  {
+    id: 'e003',
+    scenario: 'delivery',
+    difficulty: 2,
+    title: '快递派送失败通知',
+    email: {
+      subject: '【顺丰速运】您的包裹派送失败，请及时处理',
+      from: { name: '顺丰速运', email: 'service@sf-expresss.cn' },
+      to: 'zhangwei@company.com',
+      date: '2026年5月28日 09:15',
+      body: `<p>尊敬的客户：</p>
+<p>您有一件快递 <span class="risk-point" data-risk-id="e003-r1">单号 SF2026052800127834</span> 于 <span class="risk-point" data-risk-id="e003-r2">2026年5月28日派送时因收件人地址不详，派送失败</span>。</p>
+<p>请在 <span class="risk-point" data-risk-id="e003-r3">48小时内</span> 点击以下按钮更新您的收货地址，<span class="risk-point" data-risk-id="e003-r4">否则包裹将被退回发件人</span>：</p>
+<p style="text-align:center;margin:20px 0">
+  <a class="email-cta risk-point" data-risk-id="e003-r5" href="#">更新收货地址</a>
+</p>
+<p>如需查询物流详情，请访问：<br>
+<span class="risk-point" data-risk-id="e003-r6">www.sf-expresss.cn/track/SF2026052800127834</span></p>
+<p style="color:#888;font-size:12px;margin-top:20px">顺丰速运客服热线：95338<br>
+<span class="risk-point" data-risk-id="e003-r7">此邮件由系统自动发送，请勿回复。如您未订购任何商品，请忽略此邮件。</span></p>`,
+      attachments: []
+    },
+    riskPoints: [
+      { id: 'e003-r1', label: '伪造的快递单号', severity: 'medium',
+        explanation: '提供一个看起来真实的快递单号增加邮件可信度。如果你近期没有等待快递，这个单号就是凭空捏造的。',
+        correctAction: '核实自己是否有待收快递。在官方APP中查询，不要相信邮件中的单号。' },
+      { id: 'e003-r2', label: '虚假的派送失败理由', severity: 'medium',
+        explanation: '"地址不详"是最常用的借口之一，因为你无法立即证伪这个说法。它制造了一个需要你"主动提供信息"的情境。',
+        correctAction: '直接联系快递公司官方客服确认，而非通过邮件中的任何操作。' },
+      { id: 'e003-r3', label: '48小时紧迫时限', severity: 'medium',
+        explanation: '设定一个看似合理的时限（48小时），既不会太短引起警觉，又足以让你感到紧迫而尽快行动。',
+        correctAction: '即使是真的快递问题，也不会在48小时后就退回。保持冷静，先验证。' },
+      { id: 'e003-r4', label: '"退回发件人"损失威胁', severity: 'medium',
+        explanation: '以"退回包裹"作为损失威胁，触发你避免损失的心理，促使你快速行动而不加验证。',
+        correctAction: '即使包裹真的被退回，通常也可以联系发件人重新发货。不要因害怕损失而仓促操作。' },
+      { id: 'e003-r5', label: '可疑的操作按钮', severity: 'high',
+        explanation: '"更新收货地址"按钮是钓鱼陷阱的核心——点击后会跳转到伪造的输入页面，要求你填写个人信息甚至支付信息。',
+        correctAction: '不要点击邮件中的按钮。需要更新地址请登录顺丰官方APP或网站操作。' },
+      { id: 'e003-r6', label: '仿冒域名 sf-expresss', severity: 'critical',
+        explanation: '域名 sf-expresss.cn 比顺丰官方域名多了字母"s"。这是典型的"typosquatting"攻击——注册与知名品牌高度相似的域名来欺骗用户。',
+        correctAction: '仔细核对域名拼写。顺丰官方域名为 sf-express.com，任何微小差异都可能是钓鱼网站。' },
+      { id: 'e003-r7', label: '"请勿回复"的免责话术', severity: 'low',
+        explanation: '"此邮件由系统自动发送，请勿回复"是钓鱼邮件常用的免责声明，目的是阻止你通过回复邮件来验证发件方的真实性。',
+        correctAction: '正规企业确实会使用自动回复说明，但这不应成为你信任邮件的唯一依据。' }
+    ]
+  },
+
+  // ──────── EMAIL 4: 退税诈骗 ────────
+  {
+    id: 'e004',
+    scenario: 'financial',
+    difficulty: 3,
+    title: '个人所得税退税通知',
+    email: {
+      subject: '【国家税务总局】您有一笔退税待领取，金额 ¥3,860.00',
+      from: { name: '国家税务总局', email: 'noreply@tax-gov.cn' },
+      to: 'wangming@company.com',
+      date: '2026年5月27日 14:20',
+      body: `<p>尊敬的纳税人：</p>
+<p>根据2025年度个人所得税汇算清缴结果，<span class="risk-point" data-risk-id="e004-r1">您符合退税条件</span>，应退税额为 <span class="risk-point" data-risk-id="e004-r2"><strong style="color:#e74c3c;font-size:18px">¥ 3,860.00</strong></span>。</p>
+<p><span class="risk-point" data-risk-id="e004-r3">请于2026年6月15日前完成退税申请，逾期将视为自动放弃退税资格。</span></p>
+<p>请点击下方按钮进入退税申请页面：</p>
+<p style="text-align:center;margin:20px 0">
+  <a class="email-cta risk-point" data-risk-id="e004-r4" href="#">申请退税</a>
+</p>
+<p>您需要准备以下信息以完成退税申请：</p>
+<ul style="margin:8px 0 16px 20px;font-size:13px">
+  <li><span class="risk-point" data-risk-id="e004-r5">身份证号码</span></li>
+  <li>银行卡号及开户行</li>
+  <li><span class="risk-point" data-risk-id="e004-r6">手机验证码</span></li>
+</ul>
+<p style="color:#888;font-size:12px;margin-top:20px">国家税务总局<br>
+<span class="risk-point" data-risk-id="e004-r7">网址：www.tax-gov.cn</span><br>
+咨询电话：12366</p>`,
+      attachments: []
+    },
+    riskPoints: [
+      { id: 'e004-r1', label: '"您符合退税条件"无具体依据', severity: 'medium',
+        explanation: '没有说明具体哪一年、哪个收入项符合退税条件。真正的税务通知会包含详细的税务年度、收入类型和计算依据。',
+        correctAction: '税务通知应包含完整的个人信息和税务记录核对信息。' },
+      { id: 'e004-r2', label: '精确金额诱导', severity: 'high',
+        explanation: '使用精确到小数点的金额（¥3,860.00）和红色大字强调，利用"意外之财"心理降低你的警惕性。金额越精确，看起来越"真实"。',
+        correctAction: '金额是否精确与是否是诈骗无关。不要因为金额看起来合理就放松警惕。' },
+      { id: 'e004-r3', label: '"逾期视为放弃"施压', severity: 'high',
+        explanation: '以"放弃退税资格"作为损失威胁，利用人们对金钱损失的厌恶心理。这是经典的"损失框架"施压手法。',
+        correctAction: '税务退税申请确实有期限，但不会以这种方式通知。应通过官方APP或网站查询。' },
+      { id: 'e004-r4', label: '可疑的"申请退税"按钮', severity: 'high',
+        explanation: '按钮将导向钓鱼网站，可能要求你填写银行卡信息或下载恶意APP。真正的退税只能通过"个人所得税"官方APP办理。',
+        correctAction: '退税只能通过国家税务总局"个人所得税"APP（在应用商店下载）办理，绝不会通过邮件链接。' },
+      { id: 'e004-r5', label: '要求提供身份证号', severity: 'high',
+        explanation: '通过邮件链接提供身份证号码是严重的个人信息泄露风险。这些信息可被用于身份盗用、贷款诈骗等。',
+        correctAction: '永远不要通过邮件链接输入身份证号等敏感个人信息。' },
+      { id: 'e004-r6', label: '要求提供手机验证码', severity: 'critical',
+        explanation: '要求提供"手机验证码"是最危险的信号。任何正规机构都不会要求你提供验证码。验证码只应由你本人在官方渠道使用。',
+        correctAction: '手机验证码是最后一道安全防线。任何人要求你提供验证码都是骗子——没有例外。' },
+      { id: 'e004-r7', label: '仿冒官网域名', severity: 'critical',
+        explanation: '国家税务总局的官方网址是 www.chinatax.gov.cn，而非 www.tax-gov.cn。钓鱼者使用了看似合理的简化域名来迷惑用户。',
+        correctAction: '核对官方网站域名。中国政府网站统一使用 .gov.cn 域名，格式通常为 www.xxx.gov.cn。' }
+    ]
+  },
+
+  // ──────── EMAIL 5: IT密码 ────────
+  {
+    id: 'e005',
+    scenario: 'techsupport',
+    difficulty: 2,
+    title: 'IT部门密码更新通知',
+    email: {
+      subject: '【IT部门】全体员工密码策略更新 — 请在本周五前完成',
+      from: { name: 'IT服务台', email: 'it-helpdesk@company-it.cn' },
+      to: 'all-staff@company.com',
+      date: '2026年5月26日 10:00',
+      body: `<p>各位同事：</p>
+<p>根据公司 <span class="risk-point" data-risk-id="e005-r1">信息安全管理委员会最新决议</span>，为配合<span class="risk-point" data-risk-id="e005-r2">等级保护2.0合规要求</span>，<span class="risk-point" data-risk-id="e005-r3">全体员工须在本周五（5月30日）前完成密码更新</span>。</p>
+<p>新密码要求：</p>
+<ul style="margin:8px 0 16px 20px;font-size:13px">
+  <li>长度不少于12位</li>
+  <li>必须包含大小写字母、数字和特殊字符</li>
+  <li><span class="risk-point" data-risk-id="e005-r4">不能与最近6次使用的密码相同</span></li>
+</ul>
+<p>请点击下方按钮进入密码更新页面：</p>
+<p style="text-align:center;margin:20px 0">
+  <a class="email-cta risk-point" data-risk-id="e005-r5" href="#">更新密码</a>
+</p>
+<p><span class="risk-point" data-risk-id="e005-r6">如您在本周五前未完成密码更新，您的账户将被临时停用</span>，需联系IT服务台人工恢复。</p>
+<p style="font-size:12px;color:#888;margin-top:16px">如有疑问，请联系 IT 服务台：it-helpdesk@company.com<br>
+<span class="risk-point" data-risk-id="e005-r7">本邮件经IT服务台安全签名验证，请放心操作。</span></p>
+<p style="font-size:11px;color:#aaa;margin-top:8px">IT服务台 | 信息技术部</p>`,
+      attachments: [{ name: '密码策略更新说明.pdf', size: '245KB' }]
+    },
+    riskPoints: [
+      { id: 'e005-r1', label: '虚构的管理委员会决议', severity: 'medium',
+        explanation: '"信息安全管理委员会最新决议"听起来很正式，但你从未听说过这个委员会的存在。钓鱼邮件经常引用不存在的组织或文件来增加权威感。',
+        correctAction: 'IT政策变更通常通过公司内部公告系统或OA通知，不会仅通过一封邮件。' },
+      { id: 'e005-r2', label: '滥用"等保2.0"专业术语', severity: 'medium',
+        explanation: '引用"等级保护2.0"这类专业法规术语来增加邮件的权威性和紧迫性。即使你不太了解这些术语，也会觉得"这是合规要求，必须配合"。',
+        correctAction: '合规要求通常有专门的培训和通知流程，不会突然通过邮件要求执行。' },
+      { id: 'e005-r3', label: '"本周五前"截止时限', severity: 'medium',
+        explanation: '给出一个看似合理的截止日期（本周五），配合"全体员工"的普遍性要求，降低个别员工的警觉感。',
+        correctAction: '通过公司内部渠道（OA、企业微信、公告栏）核实是否真的有密码更新要求。' },
+      { id: 'e005-r4', label: '伪造的专业密码策略', severity: 'medium',
+        explanation: '列出看起来合理的密码要求（12位、特殊字符等），使邮件看起来像真正的IT通知。但"不能与最近6次相同"暗示系统已经存储了你之前的密码——这本身就是安全隐患。',
+        correctAction: '密码策略细节不应成为你信任邮件的理由。重点在于核实通知来源是否可信。' },
+      { id: 'e005-r5', label: '密码更新按钮', severity: 'critical',
+        explanation: '点击后会跳转到仿冒的密码输入页面，要求你输入当前密码和新密码。一旦输入，攻击者就获得了你的当前密码。这是整个钓鱼攻击的核心目的。',
+        correctAction: '密码更新应通过公司的SSO门户或AD自助服务页面，而非邮件中的链接。' },
+      { id: 'e005-r6', label: '"账户停用"威胁', severity: 'high',
+        explanation: '以"账户停用"作为威胁，迫使员工优先处理这件事而忽略验证步骤。失去工作账户访问权限是对上班族最直接的威胁之一。',
+        correctAction: 'IT部门不会因单一操作未完成就停用账户。会有提前通知、提醒和行政流程。' },
+      { id: 'e005-r7', label: '虚假的安全签名声明', severity: 'high',
+        explanation: '声称"经IT服务台安全签名验证"来打消你的疑虑。但这句话本身就没有任何技术验证意义——任何人都可以在邮件中写上这句话。',
+        correctAction: '邮件签名验证是技术层面的事（如DKIM、S/MIME），不是邮件正文中的一句声明。' }
+    ]
+  },
+
+  // ──────── EMAIL 6: 数据泄露 ────────
+  {
+    id: 'e006',
+    scenario: 'data',
+    difficulty: 4,
+    title: '数据泄露紧急通知',
+    email: {
+      subject: '【安全警报】您的账户数据可能已在暗网泄露',
+      from: { name: '安全态势感知平台', email: 'alert@cyber-security-ops.com' },
+      to: 'wangming@company.com',
+      date: '2026年5月29日 03:17',
+      body: `<p>尊敬的用户：</p>
+<p>我们的 <span class="risk-point" data-risk-id="e006-r1">暗网监控系统</span> 于 <span class="risk-point" data-risk-id="e006-r2">2026年5月28日 23:41 (UTC+8)</span> 检测到一个新泄露的数据包，其中包含与您关联的账户信息：</p>
+<p style="background:#1a1a2e;padding:14px;border-radius:8px;font-size:13px;margin:12px 0;color:#e8e8e8;font-family:monospace;border-left:3px solid #f04848">
+泄露来源：<span class="risk-point" data-risk-id="e006-r3">某大型招聘平台（2025年12月泄露）</span><br>
+涉及字段：邮箱、手机号、<span class="risk-point" data-risk-id="e006-r4">密码哈希</span><br>
+匹配置信度：92.7%<br>
+泄露记录数：约 23,847,291 条
+</p>
+<p><span class="risk-point" data-risk-id="e006-r5">建议您立即采取以下措施以降低风险：</span></p>
+<ol style="margin:8px 0 16px 20px;font-size:13px;line-height:2">
+  <li><span class="risk-point" data-risk-id="e006-r6">点击下方按钮查看您的完整泄露报告</span></li>
+  <li>立即修改所有使用相同密码的账户</li>
+  <li>启用多因素认证</li>
+</ol>
+<p style="text-align:center;margin:20px 0">
+  <a class="email-cta risk-point" data-risk-id="e006-r7" href="#" style="background:#f04848">查看我的泄露报告 &amp; 立即防护</a>
+</p>
+<p style="color:#888;font-size:12px;margin-top:20px">安全态势感知平台 | 威胁情报中心<br>
+<span class="risk-point" data-risk-id="e006-r8">本通知为系统自动触发，如非本人请忽略</span></p>`,
+      attachments: []
+    },
+    riskPoints: [
+      { id: 'e006-r1', label: '"暗网监控"模糊技术包装', severity: 'medium',
+        explanation: '使用"暗网监控系统"这类听起来很专业但你无法验证的技术术语。普通人无法核实暗网数据，这正是钓鱼者利用的信息不对称。',
+        correctAction: '如果你真的关心数据泄露，使用 Have I Been Pwned 等知名工具查询，而非通过邮件链接。' },
+      { id: 'e006-r2', label: '精确时间戳增加可信度', severity: 'medium',
+        explanation: '提供精确到分钟的时间戳（2026年5月28日 23:41），让邮件看起来像来自一个真实的监控系统。精确的技术细节是增加可信度的常用手段。',
+        correctAction: '技术细节的精确度不代表内容的真实性。攻击者可以编造任何看起来专业的数据。' },
+      { id: 'e006-r3', label: '模糊的泄露来源', severity: 'medium',
+        explanation: '"某大型招聘平台"故意不指明具体平台名称，这样无论哪个招聘平台泄露数据，你都会觉得"说的可能是真的"。',
+        correctAction: '真正的安全通知会明确告知泄露的具体来源和你的具体受影响账户。' },
+      { id: 'e006-r4', label: '提及"密码哈希"制造恐慌', severity: 'high',
+        explanation: '"密码哈希"听起来技术性很强且威胁很大，但普通用户不清楚哈希与明文密码的区别。这个术语被用来最大化恐慌效果。',
+        correctAction: '了解基础安全知识：密码哈希≠明文密码，但如果你的密码太简单，确实可能被破解。定期更新密码是好习惯。' },
+      { id: 'e006-r5', label: '看似合理的安全建议', severity: 'medium',
+        explanation: '邮件中混合了真实的安全建议（修改密码、启用MFA）和钓鱼陷阱（点击链接查看报告）。真假混杂是最难识别的钓鱼手法。',
+        correctAction: '安全建议本身是对的，但执行渠道不对。通过官方渠道独立执行，不通过邮件中的链接。' },
+      { id: 'e006-r6', label: '引导点击查看"泄露报告"', severity: 'high',
+        explanation: '诱导你点击链接查看"完整泄露报告"。这个链接可能导向钓鱼网站，要求你输入当前密码来"检查"是否泄露——从而真正泄露你的密码。',
+        correctAction: '不要通过邮件链接查看安全报告。在官方安全平台或通过IT部门查询。' },
+      { id: 'e006-r7', label: '红色CTA按钮诱导', severity: 'high',
+        explanation: '使用红色按钮配合"查看泄露报告 & 立即防护"的双重承诺，结合恐惧心理，形成强烈的点击冲动。这是将恐惧转化为行动的经典设计。',
+        correctAction: '不要因恐惧而仓促行动。恐慌时做的决定往往是最危险的。' },
+      { id: 'e006-r8', label: '"系统自动触发"免责话术', severity: 'low',
+        explanation: '"系统自动触发"试图让你相信这是来自自动化安全系统的通知，而非人为发送的钓鱼邮件。配合凌晨3点的发送时间，进一步强化"自动化"的印象。',
+        correctAction: '发送时间和免责声明都不能作为信任邮件的依据。' }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+//  APPLICATION
+// ═══════════════════════════════════════════════════════════
+
+const app = {
+  state: {
+    view: 'landing',
+    queue: [],          // email ids to practice
+    currentIdx: 0,      // index in queue
+    selected: new Set(), // selected risk point ids for current email
+    results: [],         // per-email results
+    phase: 'selecting'   // selecting | reviewing
+  },
+
+  // ─── Init ───
+  init() {
+    this.renderLanding();
+  },
+
+  // ─── Navigation ───
+  switchView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const el = document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1));
+    if (el) {
+      el.classList.add('active');
+      // Re-trigger animation
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = '';
+    }
+    this.state.view = name;
+    this.updateHeader();
+  },
+
+  goHome() {
+    this.state.queue = [];
+    this.state.results = [];
+    this.state.currentIdx = 0;
+    this.switchView('landing');
+  },
+
+  // ─── Header ───
+  updateHeader() {
+    const { view, queue, currentIdx, results } = this.state;
+    const headerProgress = document.getElementById('headerProgress');
+    const headerStats = document.getElementById('headerStats');
+    const headerScore = document.getElementById('headerScore');
+    const headerEmails = document.getElementById('headerEmails');
+
+    if (view === 'practice' && queue.length > 0) {
+      headerStats.style.display = 'flex';
+      headerProgress.innerHTML = queue.map((_, i) => {
+        let cls = 'progress-dot';
+        if (i < results.length) cls += results[i].percentage >= 70 ? ' done-correct' : ' done-wrong';
+        if (i === currentIdx) cls += ' active';
+        return `<div class="${cls}"></div>`;
+      }).join('');
+
+      const totalScore = results.reduce((s, r) => s + r.score, 0);
+      const totalMax = results.reduce((s, r) => s + r.maxScore, 0);
+      headerScore.textContent = totalMax > 0 ? Math.round(totalScore / totalMax * 100) + '%' : '—';
+      headerEmails.textContent = `${currentIdx + 1}/${queue.length}`;
+    } else {
+      headerProgress.innerHTML = '';
+      headerStats.style.display = view === 'landing' ? 'none' : 'flex';
+    }
+  },
+
+  // ─── Landing ───
+  renderLanding() {
+    const grid = document.getElementById('scenarioGrid');
+    const scenarioCounts = {};
+    EMAILS.forEach(e => { scenarioCounts[e.scenario] = (scenarioCounts[e.scenario] || 0) + 1; });
+
+    grid.innerHTML = Object.entries(SCENARIOS).map(([key, s]) => {
+      const count = scenarioCounts[key] || 0;
+      const emails = EMAILS.filter(e => e.scenario === key);
+      const avgDiff = emails.length ? (emails.reduce((s, e) => s + e.difficulty, 0) / emails.length).toFixed(1) : 0;
+      return `
+        <div class="scenario-card" data-scenario="${key}" onclick="app.startScenario('${key}')">
+          <div class="scenario-icon">${s.icon}</div>
+          <div class="scenario-name">${s.name}</div>
+          <div class="scenario-desc">${s.desc}</div>
+          <div class="scenario-meta">
+            <span><span class="scenario-count">${count}</span> 道题目</span>
+            <span>难度 ${avgDiff}/5</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('headerStats').style.display = 'none';
+  },
+
+  // ─── Start Practice ───
+  startScenario(key) {
+    const ids = EMAILS.filter(e => e.scenario === key).map(e => e.id);
+    this.beginPractice(ids);
+  },
+
+  startAll() {
+    this.beginPractice(EMAILS.map(e => e.id));
+  },
+
+  startRandom() {
+    const idx = Math.floor(Math.random() * EMAILS.length);
+    this.beginPractice([EMAILS[idx].id]);
+  },
+
+  beginPractice(queue) {
+    this.state.queue = queue;
+    this.state.currentIdx = 0;
+    this.state.results = [];
+    this.state.selected = new Set();
+    this.state.phase = 'selecting';
+    this.switchView('practice');
+    this.renderEmail();
+  },
+
+  // ─── Render Email ───
+  renderEmail() {
+    const { queue, currentIdx } = this.state;
+    const emailId = queue[currentIdx];
+    const data = EMAILS.find(e => e.id === emailId);
+    if (!data) return;
+
+    this.state.selected = new Set();
+    this.state.phase = 'selecting';
+
+    // Email content
+    const ec = document.getElementById('emailContent');
+    const initial = data.email.from.name.charAt(0);
+    ec.innerHTML = `
+      <div class="email-header">
+        <div class="email-subject">${this.escapeHtml(data.email.subject)}</div>
+        <div class="email-meta-row">
+          <div class="email-avatar">${initial}</div>
+          <div class="email-sender-info">
+            <div class="email-sender-name">${this.escapeHtml(data.email.from.name)}</div>
+            <div class="email-sender-addr">&lt;${this.escapeHtml(data.email.from.email)}&gt;</div>
+          </div>
+          <div class="email-date">${this.escapeHtml(data.email.date)}</div>
+        </div>
+        <div class="email-meta-row" style="margin-top:4px">
+          <div class="email-meta-label">收件人</div>
+          <div class="email-meta-value">${this.escapeHtml(data.email.to)}</div>
+        </div>
+      </div>
+      <div class="email-body">${data.email.body}</div>
+      ${data.email.attachments.length ? `
+        <div class="email-attachments">
+          ${data.email.attachments.map(a => `
+            <div class="attachment">
+              <span class="icon">📎</span>
+              <span>${this.escapeHtml(a.name)}</span>
+              <span style="color:var(--text-muted);font-size:11px">${a.size}</span>
+            </div>`).join('')}
+        </div>` : ''}
+      <div class="email-footer">
+        <button class="footer-btn">&#8634; 回复</button>
+        <button class="footer-btn">&#8594; 转发</button>
+        <button class="footer-btn">&#9733; 标记</button>
+      </div>`;
+
+    // Bind click events on risk points
+    ec.querySelectorAll('.risk-point').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.state.phase !== 'selecting') return;
+        const rid = el.dataset.riskId;
+        if (!rid) return;
+        this.toggleRiskPoint(rid, el);
+      });
+    });
+
+    this.renderSidePanel(data);
+    this.updateHeader();
+
+    // Scroll email to top
+    document.querySelector('.email-panel').scrollTop = 0;
+  },
+
+  toggleRiskPoint(rid, el) {
+    const sel = this.state.selected;
+    if (sel.has(rid)) {
+      sel.delete(rid);
+      el.classList.remove('selected');
+    } else {
+      sel.add(rid);
+      el.classList.add('selected');
+    }
+    this.renderSelectedList();
+  },
+
+  renderSelectedList() {
+    const data = this.getCurrentEmail();
+    if (!data) return;
+
+    const listEl = document.getElementById('selectedList');
+    const countEl = document.getElementById('selectedCount');
+
+    if (this.state.phase === 'selecting') {
+      countEl.textContent = this.state.selected.size;
+      if (this.state.selected.size === 0) {
+        listEl.innerHTML = '<div class="empty-hint">尚未标记任何风险点</div>';
+      } else {
+        listEl.innerHTML = Array.from(this.state.selected).map(rid => {
+          const rp = data.riskPoints.find(r => r.id === rid);
+          return `<div class="selected-item">
+            <span class="dot"></span>
+            <span>${this.escapeHtml(rp ? rp.label : rid)}</span>
+            <button class="remove" onclick="app.removeSelection('${rid}')" title="取消选择">✕</button>
+          </div>`;
+        }).join('');
+      }
+    }
+  },
+
+  removeSelection(rid) {
+    this.state.selected.delete(rid);
+    const el = document.querySelector(`[data-risk-id="${rid}"]`);
+    if (el) el.classList.remove('selected');
+    this.renderSelectedList();
+  },
+
+  // ─── Side Panel ───
+  renderSidePanel(data) {
+    const panel = document.getElementById('sidePanel');
+    panel.innerHTML = `
+      <div class="panel-section">
+        <div class="email-tags">
+          <span class="tag tag-scenario">${SCENARIOS[data.scenario].icon} ${SCENARIOS[data.scenario].name}</span>
+          <span class="tag tag-diff">${'●'.repeat(data.difficulty)}${'○'.repeat(5-data.difficulty)} ${DIFFICULTY_LABELS[data.difficulty]}</span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="instruction-box">
+          <div class="instruction-text">
+            <strong>&#128269; 找出这封邮件中的可疑之处</strong><br>
+            点击邮件中 <span style="border-bottom:2px dashed var(--red-dim)">鼠标悬停时出现下划线</span> 的文字来标记你认为的风险点。<br>
+            <span style="color:var(--text-muted);font-size:12px">提示：仔细阅读邮件，将鼠标移到你觉得可疑的文字上，发现下划线后点击标记。</span><br>
+            标记完成后点击「提交答案」查看解析。
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section" style="flex:1">
+        <div class="panel-label">已标记的风险点（<span id="selectedCount">0</span>）</div>
+        <div id="selectedList"><div class="empty-hint">尚未标记任何风险点</div></div>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn-submit" id="btnSubmit" onclick="app.submitAnswer()">&#10003; 提交答案</button>
+        <button class="btn btn-ghost btn-sm btn-skip" onclick="app.skipEmail()">跳过此题</button>
+      </div>`;
+  },
+
+  // ─── Submit ───
+  submitAnswer() {
+    const data = this.getCurrentEmail();
+    if (!data) return;
+
+    this.state.phase = 'reviewing';
+    const selected = this.state.selected;
+    const riskPoints = data.riskPoints;
+
+    // Calculate score
+    let score = 0;
+    let maxScore = 0;
+    let hits = 0;
+    let misses = 0;
+    let falsePositives = 0;
+
+    const results = riskPoints.map(rp => {
+      const weight = { low: 1, medium: 2, high: 3, critical: 4 }[rp.severity] || 2;
+      maxScore += weight;
+      const hit = selected.has(rp.id);
+      if (hit) { score += weight; hits++; }
+      else { misses++; }
+      return { ...rp, hit, weight };
+    });
+
+    // Mark false selections (not real risk points) - for future extensibility
+    // In v1 all clickable items ARE risk points, so no false positives from clicking
+
+    const percentage = maxScore > 0 ? Math.round(score / maxScore * 100) : 0;
+
+    this.state.results.push({ score, maxScore, percentage, hits, misses, falsePositives });
+
+    // Update email visual state
+    const ec = document.getElementById('emailContent');
+    ec.querySelectorAll('.risk-point').forEach(el => {
+      el.classList.remove('selected');
+      const rid = el.dataset.riskId;
+      if (selected.has(rid)) {
+        el.classList.add('result-correct');
+      } else {
+        el.classList.add('result-missed');
+      }
+      el.style.cursor = 'default';
+    });
+
+    // Render results panel
+    this.renderResultsPanel(data, results, score, maxScore, percentage, hits, misses);
+    this.updateHeader();
+  },
+
+  renderResultsPanel(data, results, score, maxScore, percentage, hits, misses) {
+    const panel = document.getElementById('sidePanel');
+
+    const grade = percentage >= 90 ? 'S' : percentage >= 75 ? 'A' : percentage >= 60 ? 'B' : percentage >= 40 ? 'C' : 'D';
+    const gradeClass = grade.toLowerCase();
+    const messages = {
+      S: '出色！你对钓鱼邮件有极高的敏感度。',
+      A: '很好！大部分风险点都被你发现了。',
+      B: '不错，但还有遗漏。注意那些隐蔽的手法。',
+      C: '需要加强训练，很多风险点没被识别。',
+      D: '建议重新学习钓鱼邮件识别课程。'
+    };
+
+    panel.innerHTML = `
+      <div class="result-score-section">
+        <div class="score-circle grade-${gradeClass}">
+          <div class="score-num" style="color:var(--grade-${gradeClass})">${percentage}%</div>
+          <div class="score-label">得分</div>
+        </div>
+        <div class="score-grade" style="color:var(--grade-${gradeClass})">评级 ${grade}</div>
+        <div class="score-message">${messages[grade]}</div>
+      </div>
+
+      <div class="result-stats">
+        <div class="result-stat stat-correct">
+          <div class="result-stat-num">${hits}</div>
+          <div class="result-stat-label">命中</div>
+        </div>
+        <div class="result-stat stat-missed">
+          <div class="result-stat-num">${misses}</div>
+          <div class="result-stat-label">遗漏</div>
+        </div>
+        <div class="result-stat stat-false">
+          <div class="result-stat-num">${data.riskPoints.length}</div>
+          <div class="result-stat-label">总计</div>
+        </div>
+      </div>
+
+      <div class="risk-breakdown">
+        <div class="panel-label">风险点详细解读</div>
+        ${results.map(r => `
+          <div class="risk-card">
+            <div class="risk-card-header">
+              <div class="risk-status ${r.hit ? 'hit' : 'miss'}">${r.hit ? '✓' : '✗'}</div>
+              <div class="risk-card-title">${this.escapeHtml(r.label)}</div>
+            </div>
+            <div class="risk-explanation">
+              <div class="risk-explanation-label">为什么危险</div>
+              <div class="risk-explanation-text">${this.escapeHtml(r.explanation)}</div>
+            </div>
+            <div class="risk-explanation correct-action">
+              <div class="risk-explanation-label">正确做法</div>
+              <div class="risk-explanation-text">${this.escapeHtml(r.correctAction)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="app.nextEmail()">
+          ${this.state.currentIdx < this.state.queue.length - 1 ? '下一封邮件 →' : '查看训练报告'}
+        </button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="app.goHome()">返回首页</button>
+      </div>`;
+  },
+
+  // ─── Navigation ───
+  skipEmail() {
+    const data = this.getCurrentEmail();
+    if (!data) return;
+    this.state.results.push({
+      score: 0,
+      maxScore: data.riskPoints.length * 2,
+      percentage: 0,
+      hits: 0,
+      misses: data.riskPoints.length,
+      falsePositives: 0,
+      skipped: true
+    });
+    this.nextEmail();
+  },
+
+  nextEmail() {
+    this.state.currentIdx++;
+    if (this.state.currentIdx >= this.state.queue.length) {
+      this.showComplete();
+    } else {
+      this.state.selected = new Set();
+      this.state.phase = 'selecting';
+      this.renderEmail();
+    }
+  },
+
+  // ─── Complete ───
+  showComplete() {
+    const { results } = this.state;
+    const totalScore = results.reduce((s, r) => s + r.score, 0);
+    const totalMax = results.reduce((s, r) => s + r.maxScore, 0);
+    const overallPct = totalMax > 0 ? Math.round(totalScore / totalMax * 100) : 0;
+    const totalHits = results.reduce((s, r) => s + r.hits, 0);
+    const totalMisses = results.reduce((s, r) => s + r.misses, 0);
+
+    const grade = overallPct >= 90 ? 'S' : overallPct >= 75 ? 'A' : overallPct >= 60 ? 'B' : overallPct >= 40 ? 'C' : 'D';
+
+    document.getElementById('completeContent').innerHTML = `
+      <div class="complete-icon">✓</div>
+      <h2 class="complete-title">训练完成</h2>
+      <p class="complete-subtitle">
+        你已完成 ${results.length} 封邮件的找茬训练。<br>
+        继续练习可以提升你对钓鱼邮件的识别敏感度。
+      </p>
+
+      <div class="final-stats">
+        <div class="final-stat">
+          <div class="final-stat-num">${overallPct}%</div>
+          <div class="final-stat-label">总正确率</div>
+        </div>
+        <div class="final-stat">
+          <div class="final-stat-num" style="color:var(--green)">${totalHits}</div>
+          <div class="final-stat-label">命中风险点</div>
+        </div>
+        <div class="final-stat">
+          <div class="final-stat-num" style="color:var(--red)">${totalMisses}</div>
+          <div class="final-stat-label">遗漏风险点</div>
+        </div>
+      </div>
+
+      <div class="landing-actions">
+        <button class="btn btn-primary" onclick="app.startAll()">再来一轮</button>
+        <button class="btn btn-ghost" onclick="app.goHome()">返回首页</button>
+      </div>`;
+
+    this.switchView('complete');
+  },
+
+  // ─── Helpers ───
+  getCurrentEmail() {
+    const emailId = this.state.queue[this.state.currentIdx];
+    return EMAILS.find(e => e.id === emailId);
+  },
+
+  escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+};
+
+// Boot
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>
