@@ -14,6 +14,12 @@
 
 无需登录、无后台、无跟踪，所有内容随页面一次性加载。
 
+它教的不是关键词，而是三件事：
+
+- **不是找关键词**：线索分两类教——「硬证据」是可以直接核实的客观事实（仿冒域名、陌生收款账号、索要验证码），「话术手法」是心理操控信号（紧迫时限、保密要求、权威包装）。两类分开标注，不把单一表象直接判为恶意。
+- **不是乱点**：点错的地方每次 -1 分，规则答题前明示。先想后点才有分，碰运气无利可图。
+- **不止告诉你错**：每个风险点都给"为什么危险 + 正确做法"，每封邮件还附"下一步怎么做"——核实渠道与上报路径。
+
 ## 界面
 
 | 桌面 · 首页 | 桌面 · 标记风险点 |
@@ -23,6 +29,24 @@
 | 桌面 · 结果解读 | 手机 · 训练 |
 |---|---|
 | ![桌面结果](docs/screenshots/desktop-result.webp) | ![手机训练](docs/screenshots/mobile-practice.webp) |
+
+## 一道题的完整闭环（内置题目 e002「领导紧急转账请求」节选）
+
+**1. 发现线索** —— 这封"CEO 来信"要求 3 点前完成 18.6 万转账。点击发件人地址，标记这处可疑：
+
+> wang.zong@company-group.cn（发件人显示名是"王总 (CEO)"）
+
+**2. 查看解释** —— 提交后，这处标记的解读（硬证据 · 严重）：
+
+> **发件人域名与公司不符**：发件地址是 wang.zong@company-group.cn，而不是公司邮箱域名 @company.com。仿冒相似域名的"高管邮件"是 BEC（商务邮件诈骗）最核心的破绽——显示名称可以随意伪造，域名不会说谎。
+>
+> **正确做法**：核对发件人邮箱的域名部分，而不只是显示名称。收到"领导"邮件涉及转账时，先用通讯录号码电话确认。
+
+**3. 采取行动** —— 这封邮件结果页的"下一步怎么做"：
+
+> - 挂断邮件，用通讯录里存的号码（而不是邮件里给的联系方式）致电领导本人确认。
+> - 大额付款只认"合同→审批→财务"流程；"先转账后补手续"本身就是违规信号。
+> - 把邮件原文（连同发件人地址）转交财务与安全部门备案。
 
 ## 训练流程
 
@@ -68,44 +92,38 @@ npx serve .
 docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 ```
 
-## 题目维护
+## 添加一道题
 
-全部题目在 `index.html` 的 `EMAILS` 数组中，一封邮件一个对象：
+题目全部在 `index.html` 的 `EMAILS` 数组中，一封邮件一个对象；往数组末尾追加一个对象、刷新页面即生效。最小示例（**已实测**：实际加入题库后验证了出现、标记、取消、误点计数、提交计分与解读展示，验证后移除）：
 
 ```javascript
 {
-  id: 'e001',
-  scenario: 'urgency',          // 场景 key，对应 SCENARIOS 中的定义
-  difficulty: 3,                // 难度 1-5，"开始全部训练"按它排序
-  title: '紧急密码重置通知',      // 题目名
-  fromRiskId: 'e001-rX',        // 可选：把发件人地址设为可点击风险点
+  id: 'e101',
+  scenario: 'urgency',
+  difficulty: 1,
+  title: '假期补贴登记（示例题）',
   email: {
-    subject: '...',
-    from: { name: '显示名', email: 'sender@example.net' },
-    to: 'victim@example.com',
-    date: '2026年5月28日 16:32',
-    body: `<p>正文 HTML。<span class="risk-point" data-risk-id="e001-r1">可疑文字</span></p>`,
-    attachments: []             // 可选：[{ name: 'xx.pdf', size: '245KB' }]
+    subject: '【人事部】假期补贴登记今日 18:00 截止',
+    from: { name: '人事部', email: 'hr-notice@company-hr.net' },
+    to: 'chen@company.com',
+    date: '2026年6月1日 10:00',
+    body: `<p>各位同事：</p>
+<p><span class="risk-point" data-risk-id="e101-r1">补贴登记今日 18:00 截止，逾期不再受理</span>，请立即点击 <a class="email-cta risk-point" data-risk-id="e101-r2" href="#">登记领取</a>。</p>`,
+    attachments: []
   },
   riskPoints: [
-    {
-      id: 'e001-r1',            // 与 data-risk-id 对应
-      type: 'evidence',         // 'evidence' 硬证据 | 'tactic' 话术手法
-      label: '风险点标签',
-      severity: 'high',         // low | medium | high | critical（影响分值）
-      explanation: '为什么危险',
-      correctAction: '正确做法'
-    }
+    { id: 'e101-r1', type: 'tactic', label: '当日截止的人为时限', severity: 'medium',
+      explanation: '以"今日截止、逾期不受理"制造紧迫感，压缩核实时间。',
+      correctAction: '通过公司 OA 或当面问 HR，核实是否真有此通知。' },
+    { id: 'e101-r2', type: 'evidence', label: '仿冒 HR 邮箱域名', severity: 'high',
+      explanation: '发件域名 company-hr.net 不是公司官方域名，仿冒内部部门是常见手法。',
+      correctAction: '核对发件域名；内部通知以 OA/企业邮箱为准。' }
   ],
-  nextSteps: ['处置建议一', '处置建议二']   // 可选：结果页"下一步怎么做"
+  nextSteps: ['把邮件原文转发给 IT 安全部门备案。']
 }
 ```
 
-要点：
-
-- 正文中的可点击风险点用 `<span class="risk-point" data-risk-id="...">文字</span>` 标注，按钮则加在 `<a class="email-cta risk-point">` 上；
-- 每封邮件的 `riskPoints` 里每个 `id` 都必须在正文中有一个对应的 `data-risk-id`，否则该点无法被选中；
-- 新增场景需同步在 `SCENARIOS` 中补充名称、图标与描述。
+> 完整的对象结构、正文标注语法、severity/type 字段参考、新增场景与改后验证清单，见 **[docs/题目维护.md](docs/题目维护.md)**。
 
 ## 设计取舍
 

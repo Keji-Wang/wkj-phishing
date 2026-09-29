@@ -14,6 +14,12 @@ A fully static, single-page training tool: read a simulated email, mark whatever
 
 No sign-up, no backend, no tracking — everything loads with the page itself. The training interface is currently in Chinese.
 
+It doesn't teach keywords. It teaches three things:
+
+- **Not keyword-hunting**: clues are taught in two distinct classes — "hard evidence" you can objectively verify (lookalike domains, unknown bank accounts, demands for one-time codes) and "social tactics" (fake urgency, secrecy demands, borrowed authority). Keeping them apart stops a single surface cue from being condemned as proof of malice.
+- **Not blind clicking**: taps on non-risk areas cost -1 point each, with the rule disclosed before answering. Think first, then tap.
+- **More than "you were wrong"**: every risk point comes with why it's dangerous and the right move, and every email ends with concrete next steps — verification channels and escalation paths.
+
 ## Screenshots
 
 | Desktop · Home | Desktop · Marking risks |
@@ -23,6 +29,24 @@ No sign-up, no backend, no tracking — everything loads with the page itself. T
 | Desktop · Debrief | Mobile · Training |
 |---|---|
 | ![Desktop result](docs/screenshots/desktop-result.webp) | ![Mobile](docs/screenshots/mobile-practice.webp) |
+
+## One exercise, end to end (built-in exercise e002, excerpt)
+
+**1. Spot the clue** — this "email from the CEO" demands a ¥186,000 transfer by 3 pm. The sender address is marked as suspicious:
+
+> wang.zong@company-group.cn (display name: "王总 (CEO)")
+
+**2. Read the debrief** — after submission, this mark's card (hard evidence · critical):
+
+> **发件人域名与公司不符 / sender domain doesn't match the company**: the address is wang.zong@company-group.cn, not the company domain @company.com. Display names can be forged freely; domains don't lie.
+>
+> **The right move**: check the domain part of the sender address, not just the display name. Call the executive on the number saved in your contacts before acting on any "leadership" email involving money.
+
+**3. Act on it** — this email's "next steps" card:
+
+> - Hang up on the email; call the executive on the number from your own contacts, not any contact given in the email.
+> - Large payments only follow the contract → approval → finance pipeline; "paperwork later" is itself a red flag.
+> - Forward the original email (with sender address) to finance and security for the record.
 
 ## How a session works
 
@@ -70,42 +94,7 @@ docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 
 ## Maintaining content
 
-All exercises live in the `EMAILS` array inside `index.html`, one object per email:
-
-```javascript
-{
-  id: 'e001',
-  scenario: 'urgency',          // scenario key, defined in SCENARIOS
-  difficulty: 3,                // 1-5; the full set is sorted by this
-  title: 'Exercise name',
-  fromRiskId: 'e001-rX',        // optional: makes the sender address a markable risk point
-  email: {
-    subject: '...',
-    from: { name: 'Display name', email: 'sender@example.net' },
-    to: 'victim@example.com',
-    date: '2026-05-28 16:32',
-    body: `<p>Body HTML. <span class="risk-point" data-risk-id="e001-r1">suspicious text</span></p>`,
-    attachments: []             // optional: [{ name: 'x.pdf', size: '245KB' }]
-  },
-  riskPoints: [
-    {
-      id: 'e001-r1',            // must match data-risk-id in the body
-      type: 'evidence',         // 'evidence' | 'tactic'
-      label: 'Risk label',
-      severity: 'high',         // low | medium | high | critical (weight)
-      explanation: 'Why it is dangerous',
-      correctAction: 'The right move'
-    }
-  ],
-  nextSteps: ['Handling advice 1', 'Handling advice 2']   // optional
-}
-```
-
-Notes:
-
-- Markable text is wrapped as `<span class="risk-point" data-risk-id="...">text</span>`; CTA buttons use `<a class="email-cta risk-point">`;
-- Every risk point `id` needs a matching `data-risk-id` in the body, otherwise it cannot be selected;
-- New scenarios require a matching entry in `SCENARIOS`.
+All exercises live in the `EMAILS` array inside `index.html`, one object per email — append an object, refresh, done. The full field reference, body-marking syntax, severity/type tables, how to add a scenario, and a verified minimal example live in **[docs/题目维护.md](docs/题目维护.md)** (written in Chinese).
 
 ## Design trade-offs
 
@@ -128,7 +117,7 @@ Notes:
 
 ## License
 
-[MIT](LICENSE) © Jeffrey Wang
+[MIT](LICENSE) © 2026 Jeffrey Wang (Keji-Wang)
 
 ---
 
