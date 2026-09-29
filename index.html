@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HZLT PHISHHUNT - 钓鱼邮件找茬训练</title>
+<title>钓鱼邮件找茬训练 · Phishing Email Trainer</title>
+<meta name="description" content="互动式钓鱼邮件识别训练：阅读模拟邮件，标记可疑风险点，逐点了解判断依据与正确处理方式。纯前端静态页面，无需登录。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -143,7 +144,7 @@ body::after {
   gap: 2px;
 }
 
-.logo-hzlt { color: #4a90e2; }
+.logo-main { color: #4a90e2; }
 .logo-phish { color: #ffffff; }
 .logo-hunt { color: #f0a030; }
 
@@ -663,17 +664,17 @@ body::after {
 /* ─── Risk Points — the core interactive elements ─── */
 .risk-point {
   position: relative;
-  cursor: text;
+  cursor: pointer;
   padding-bottom: 1px;
   transition: all 0.2s;
   border-radius: 2px;
 }
 
-/* Subtle hint on hover - this is when you discover it's clickable */
-.risk-point:hover {
-  cursor: pointer;
-  border-bottom: 2px dashed var(--red-dim);
-  background: rgba(240,72,72,0.08);
+/* Keyboard focus ring — the a11y equivalent of "you can mark this" */
+.risk-point:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
 .risk-point.selected {
@@ -1241,6 +1242,93 @@ body::after {
   color: var(--text-secondary);
 }
 
+/* ─── Risk type badges (evidence vs tactic) ─── */
+.risk-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.risk-type-evidence {
+  background: rgba(72,144,240,0.12);
+  color: var(--blue);
+  border: 1px solid rgba(72,144,240,0.25);
+}
+
+.risk-type-tactic {
+  background: rgba(240,160,48,0.1);
+  color: var(--amber);
+  border: 1px solid rgba(240,160,48,0.25);
+}
+
+.risk-card-title {
+  flex: 1;
+}
+
+/* ─── Next steps card ─── */
+.next-steps {
+  margin: 0 24px 20px;
+  padding: 16px;
+  background: rgba(64,200,112,0.06);
+  border: 1px solid rgba(64,200,112,0.2);
+  border-radius: var(--r-md);
+}
+
+.next-steps ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.next-steps li {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.next-steps li::before {
+  content: '→';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ─── False-tap toast ─── */
+#fpToast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--bg-active);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 200;
+  white-space: nowrap;
+}
+
+#fpToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+#fpToast .num { color: var(--amber); font-weight: 600; }
+
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
@@ -1250,6 +1338,10 @@ body::after {
     flex-direction: column;
     height: auto;
   }
+
+  /* The viewIn animation keeps a transform (fill-mode: forwards) which would
+     become the containing block for position:fixed — disable it on mobile */
+  .view { animation: none; }
 
   .side-panel {
     width: 100%;
@@ -1267,6 +1359,44 @@ body::after {
   .landing-features { gap: 16px; }
 
   .header-progress { display: none; }
+
+  /* Sticky action bar: submit/next always within thumb reach */
+  .panel-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    margin-top: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(15,18,24,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
+  }
+
+  .panel-actions .btn-skip { display: none; }
+
+  /* Keep content clear of the fixed bar */
+  .side-panel { padding-bottom: 84px; }
+
+  .final-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .header { padding: 0 14px; }
+  .header-logo .logo-text { display: none; }
+  .header-stats { gap: 10px; font-size: 11px; }
+  .email-header { padding: 16px 16px 12px; }
+  .email-body { padding: 16px; font-size: 14.5px; }
+  .email-attachments { padding: 0 16px 16px; }
+  .email-footer { padding: 12px 16px; }
+  .result-score-section { padding: 22px 16px; }
+  .risk-breakdown { padding: 12px 16px; }
+  .next-steps { margin: 0 16px 16px; }
+  .complete { padding: 56px 20px; }
 }
 
 /* Utility */
@@ -1278,10 +1408,18 @@ body::after {
 
 <!-- ═══ HEADER ═══ -->
 <header class="header">
-  <div class="header-logo" onclick="app.goHome()">
-    <img class="logo-img" src="logo.png" alt="HZLT" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-    <div class="logo-fallback" style="display:none;width:28px;height:28px;background:linear-gradient(135deg,#4a90e2,#f0a030);border-radius:6px;align-items:center;justify-content:center;font-weight:700;font-size:15px;">H</div>
-    <span class="logo-text"><span class="logo-hzlt">HZLT</span> <span class="logo-phish">PHISH</span><span class="logo-hunt">HUNT</span></span>
+  <div class="header-logo" onclick="app.goHome()" role="button" tabindex="0" aria-label="返回首页" id="headerHome">
+    <svg class="logo-img" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M16 2L28 7v9c0 7.2-4.9 12.4-12 14C8.9 28.4 4 23.2 4 16V7l12-5z" fill="url(#shieldGrad)"/>
+      <path d="M11 16.5l3.5 3.5L21.5 13" stroke="#0a0c10" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <defs>
+        <linearGradient id="shieldGrad" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#ffc048"/>
+          <stop offset="1" stop-color="#b87a20"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="logo-text"><span class="logo-main" style="color:var(--text-primary)">钓鱼邮件</span><span class="logo-hunt">找茬训练</span></span>
   </div>
 
   <div class="header-progress" id="headerProgress"></div>
@@ -1300,16 +1438,16 @@ body::after {
   <div class="view active" id="viewLanding">
     <div class="landing">
       <div class="landing-hero">
-        <div class="landing-badge">&#9670; AWARENESS TRAINING v1.0</div>
-        <h1 class="landing-title"><span class="logo-hzlt">HZLT</span> 钓鱼邮件找茬训练</h1>
+        <div class="landing-badge">&#9670; AWARENESS TRAINING</div>
+        <h1 class="landing-title">钓鱼邮件找茬训练</h1>
         <p class="landing-subtitle">
-          阅读模拟钓鱼邮件，找出所有可疑风险点。<br>
-          每封邮件都隐藏着多个精心设计的陷阱，你能全部识别吗？
+          阅读一封模拟邮件，凭自己的判断点出可疑之处，再逐条对照解读。<br>
+          训练的目标不是分数，而是记住每条线索背后的判断依据和下一步该怎么做。
         </p>
         <div class="landing-features">
           <div class="feature-item"><div class="feature-dot"></div>6种常见钓鱼场景</div>
-          <div class="feature-item"><div class="feature-dot"></div>真实还原邮件客户端</div>
-          <div class="feature-item"><div class="feature-dot"></div>逐点结构化解读</div>
+          <div class="feature-item"><div class="feature-dot"></div>桌面与手机同套交互</div>
+          <div class="feature-item"><div class="feature-dot"></div>区分硬证据与话术手法</div>
         </div>
       </div>
 
@@ -1398,28 +1536,28 @@ const EMAILS = [
       attachments: []
     },
     riskPoints: [
-      { id: 'e001-r1', label: '模糊的"异常登录"说辞', severity: 'medium',
+      { id: 'e001-r1', type: 'tactic', label: '模糊的"异常登录"说辞', severity: 'medium',
         explanation: '邮件没有提供任何具体的异常登录详情（时间、地点、设备类型），仅用"异常登录活动"这一模糊说辞制造恐慌，是钓鱼邮件的典型特征。',
         correctAction: '真正的安全告警通常会包含具体的登录时间、IP地址或地理位置信息。收到此类邮件应直接联系IT部门核实。' },
-      { id: 'e001-r2', label: '"境外IP"模糊威胁', severity: 'medium',
+      { id: 'e001-r2', type: 'tactic', label: '"境外IP"模糊威胁', severity: 'medium',
         explanation: '声称有境外IP访问但不提供任何具体信息。合法的安全通知会展示具体的IP地址和地理位置。',
         correctAction: '不要基于模糊信息采取行动。通过公司官方渠道（非邮件中的链接）验证账户状态。' },
-      { id: 'e001-r3', label: '"24小时永久锁定"施压', severity: 'high',
+      { id: 'e001-r3', type: 'tactic', label: '"24小时永久锁定"施压', severity: 'high',
         explanation: '利用紧迫性迫使收件人在不加思考的情况下行动。"永久锁定"是极端后果，配合24小时倒计时，是典型的社工施压手法。',
         correctAction: 'IT部门不会仅通过一封邮件就威胁永久锁定账户。真正的账户锁定会有多重通知渠道（短信、电话等）。' },
-      { id: 'e001-r4', label: '可疑的CTA按钮', severity: 'high',
+      { id: 'e001-r4', type: 'evidence', label: '可疑的CTA按钮', severity: 'high',
         explanation: '按钮文字"立即验证身份 & 重置密码"配合紧急施压，引导用户点击恶意链接。按钮实际指向的URL与显示文字可能完全不同。',
         correctAction: '永远不要点击可疑邮件中的按钮。如需重置密码，请直接在浏览器中输入公司官网地址操作。' },
-      { id: 'e001-r5', label: '非公司域名链接', severity: 'critical',
+      { id: 'e001-r5', type: 'evidence', label: '非公司域名链接', severity: 'critical',
         explanation: '链接域名是 company-support.net 而非公司官方域名。钓鱼者注册了与公司名称相似的域名来迷惑用户。这是最关键的识别标志之一。',
         correctAction: '仔细检查链接域名。公司IT服务一定使用公司官方域名，不会使用外部域名。' },
-      { id: 'e001-r6', label: '"2小时内"极端时限', severity: 'high',
+      { id: 'e001-r6', type: 'tactic', label: '"2小时内"极端时限', severity: 'high',
         explanation: '进一步缩短响应时间至2小时，加剧紧迫感。真实的IT操作不会设置如此短的响应时限。',
         correctAction: '任何要求你在极短时间内采取行动的邮件都应提高警惕。先通过其他渠道验证。' },
-      { id: 'e001-r7', label: '"永久删除数据"威胁', severity: 'high',
+      { id: 'e001-r7', type: 'tactic', label: '"永久删除数据"威胁', severity: 'high',
         explanation: '以删除所有邮件和数据作为威胁，这是极端的恐吓手段。IT部门不会因密码未重置就删除用户数据。',
         correctAction: '公司有完整的数据备份策略，IT部门不会以删除数据来威胁员工。这是明显的社工话术。' },
-      { id: 'e001-r8', label: '假冒微软版权声明', severity: 'medium',
+      { id: 'e001-r8', type: 'evidence', label: '假冒微软版权声明', severity: 'medium',
         explanation: '在邮件底部添加看似正规的微软版权声明，试图增加邮件的可信度。但企业IT通知不需要微软的版权声明。',
         correctAction: '注意邮件底部的版权和发件方信息是否与实际发件方匹配。' }
     ]
@@ -1431,6 +1569,7 @@ const EMAILS = [
     scenario: 'impersonation',
     difficulty: 4,
     title: '领导紧急转账请求',
+    fromRiskId: 'e002-r9',
     email: {
       subject: 'Re: 有一笔紧急款项需要今天处理',
       from: { name: '王总 (CEO)', email: 'wang.zong@company-group.cn' },
@@ -1451,30 +1590,38 @@ const EMAILS = [
       attachments: []
     },
     riskPoints: [
-      { id: 'e002-r1', label: '过于亲昵的称呼', severity: 'medium',
+      { id: 'e002-r1', type: 'tactic', label: '过于亲昵的称呼', severity: 'medium',
         explanation: '使用"小李"这样过于亲昵的称呼来降低你的戒备心理，营造"领导信任你"的感觉。真实领导邮件通常使用正式称呼。',
         correctAction: '收到此类邮件时，先通过电话或当面向领导确认。' },
-      { id: 'e002-r2', label: '"手机没电"制造联系障碍', severity: 'high',
+      { id: 'e002-r2', type: 'tactic', label: '"手机没电"制造联系障碍', severity: 'high',
         explanation: '通过"在外面开会、手机快没电"制造一个你无法通过电话确认的理由，迫使你只能通过邮件沟通。这是BEC（商务邮件诈骗）的经典话术。',
         correctAction: '越是要求你不能电话确认的请求，越需要警惕。通过其他渠道（如秘书、助理）核实领导行踪。' },
-      { id: 'e002-r3', label: '"下午3点前"紧急时限', severity: 'high',
+      { id: 'e002-r3', type: 'tactic', label: '"下午3点前"紧急时限', severity: 'high',
         explanation: '设定一个看似即将到来的紧迫期限，压缩你的思考和验证时间。',
         correctAction: '大额转账必须经过正规审批流程，不会因"时间紧急"而绕过。' },
-      { id: 'e002-r4', label: '陌生收款账户', severity: 'critical',
+      { id: 'e002-r4', type: 'evidence', label: '陌生收款账户', severity: 'critical',
         explanation: '收款账户是一家你从未听说的公司。正规业务转账应有对应的合同和审批记录，不会临时提供一个陌生账户。',
         correctAction: '核实收款方身份：是否有合同？是否有采购订单？财务部门是否知晓？' },
-      { id: 'e002-r5', label: '大额转账无审批', severity: 'critical',
+      { id: 'e002-r5', type: 'evidence', label: '大额转账无审批', severity: 'critical',
         explanation: '18.6万元的大额转账没有任何正式的审批流程、合同编号或业务背景说明。任何正规企业都不会以这种方式处理大额付款。',
         correctAction: '大额付款必须经过：合同确认→采购审批→财务审批→付款执行的完整流程。' },
-      { id: 'e002-r6', label: '"不要跟其他人说"保密要求', severity: 'critical',
+      { id: 'e002-r6', type: 'tactic', label: '"不要跟其他人说"保密要求', severity: 'critical',
         explanation: '要求保密是阻止你与同事或财务部门核实的经典手法。正规的业务操作不需要对相关人员保密。',
         correctAction: '任何要求保密的财务操作都应立即引起警惕。应主动与财务、行政或IT安全部门沟通。' },
-      { id: 'e002-r7', label: '"回来后补手续"承诺', severity: 'high',
+      { id: 'e002-r7', type: 'tactic', label: '"回来后补手续"承诺', severity: 'high',
         explanation: '用"回来后补手续"来合理化跳过正规流程的行为。实际操作中，事后补手续是严重的内控违规。',
         correctAction: '先斩后奏违反企业内控。所有大额转账都应先有完整的审批手续。' },
-      { id: 'e002-r8', label: '"你先帮我处理"责任转嫁', severity: 'high',
+      { id: 'e002-r8', type: 'tactic', label: '"你先帮我处理"责任转嫁', severity: 'high',
         explanation: '将财务操作的责任转嫁给你，让你成为违规操作的执行者。一旦转账完成，你将成为主要责任人。',
-        correctAction: '员工无权代替管理层执行未经审批的财务操作。应要求提供正式的书面授权。' }
+        correctAction: '员工无权代替管理层执行未经审批的财务操作。应要求提供正式的书面授权。' },
+      { id: 'e002-r9', type: 'evidence', label: '发件人域名与公司不符', severity: 'critical',
+        explanation: '发件地址是 wang.zong@company-group.cn，而不是公司邮箱域名 @company.com。仿冒相似域名的"高管邮件"是 BEC（商务邮件诈骗）最核心的破绽——显示名称可以随意伪造，域名不会说谎。',
+        correctAction: '核对发件人邮箱的域名部分，而不只是显示名称。收到"领导"邮件涉及转账时，先用通讯录号码电话确认。' }
+    ],
+    nextSteps: [
+      '挂断邮件，用通讯录里存的号码（而不是邮件里给的联系方式）致电领导本人确认。',
+      '大额付款只认"合同→审批→财务"流程；"先转账后补手续"本身就是违规信号。',
+      '把邮件原文（连同发件人地址）转交财务与安全部门备案。'
     ]
   },
 
@@ -1502,25 +1649,25 @@ const EMAILS = [
       attachments: []
     },
     riskPoints: [
-      { id: 'e003-r1', label: '伪造的快递单号', severity: 'medium',
+      { id: 'e003-r1', type: 'evidence', label: '伪造的快递单号', severity: 'medium',
         explanation: '提供一个看起来真实的快递单号增加邮件可信度。如果你近期没有等待快递，这个单号就是凭空捏造的。',
         correctAction: '核实自己是否有待收快递。在官方APP中查询，不要相信邮件中的单号。' },
-      { id: 'e003-r2', label: '虚假的派送失败理由', severity: 'medium',
+      { id: 'e003-r2', type: 'tactic', label: '虚假的派送失败理由', severity: 'medium',
         explanation: '"地址不详"是最常用的借口之一，因为你无法立即证伪这个说法。它制造了一个需要你"主动提供信息"的情境。',
         correctAction: '直接联系快递公司官方客服确认，而非通过邮件中的任何操作。' },
-      { id: 'e003-r3', label: '48小时紧迫时限', severity: 'medium',
+      { id: 'e003-r3', type: 'tactic', label: '48小时紧迫时限', severity: 'medium',
         explanation: '设定一个看似合理的时限（48小时），既不会太短引起警觉，又足以让你感到紧迫而尽快行动。',
         correctAction: '即使是真的快递问题，也不会在48小时后就退回。保持冷静，先验证。' },
-      { id: 'e003-r4', label: '"退回发件人"损失威胁', severity: 'medium',
+      { id: 'e003-r4', type: 'tactic', label: '"退回发件人"损失威胁', severity: 'medium',
         explanation: '以"退回包裹"作为损失威胁，触发你避免损失的心理，促使你快速行动而不加验证。',
         correctAction: '即使包裹真的被退回，通常也可以联系发件人重新发货。不要因害怕损失而仓促操作。' },
-      { id: 'e003-r5', label: '可疑的操作按钮', severity: 'high',
+      { id: 'e003-r5', type: 'evidence', label: '可疑的操作按钮', severity: 'high',
         explanation: '"更新收货地址"按钮是钓鱼陷阱的核心——点击后会跳转到伪造的输入页面，要求你填写个人信息甚至支付信息。',
         correctAction: '不要点击邮件中的按钮。需要更新地址请登录顺丰官方APP或网站操作。' },
-      { id: 'e003-r6', label: '仿冒域名 sf-expresss', severity: 'critical',
+      { id: 'e003-r6', type: 'evidence', label: '仿冒域名 sf-expresss', severity: 'critical',
         explanation: '域名 sf-expresss.cn 比顺丰官方域名多了字母"s"。这是典型的"typosquatting"攻击——注册与知名品牌高度相似的域名来欺骗用户。',
         correctAction: '仔细核对域名拼写。顺丰官方域名为 sf-express.com，任何微小差异都可能是钓鱼网站。' },
-      { id: 'e003-r7', label: '"请勿回复"的免责话术', severity: 'low',
+      { id: 'e003-r7', type: 'tactic', label: '"请勿回复"的免责话术', severity: 'low',
         explanation: '"此邮件由系统自动发送，请勿回复"是钓鱼邮件常用的免责声明，目的是阻止你通过回复邮件来验证发件方的真实性。',
         correctAction: '正规企业确实会使用自动回复说明，但这不应成为你信任邮件的唯一依据。' }
     ]
@@ -1556,25 +1703,25 @@ const EMAILS = [
       attachments: []
     },
     riskPoints: [
-      { id: 'e004-r1', label: '"您符合退税条件"无具体依据', severity: 'medium',
+      { id: 'e004-r1', type: 'tactic', label: '"您符合退税条件"无具体依据', severity: 'medium',
         explanation: '没有说明具体哪一年、哪个收入项符合退税条件。真正的税务通知会包含详细的税务年度、收入类型和计算依据。',
         correctAction: '税务通知应包含完整的个人信息和税务记录核对信息。' },
-      { id: 'e004-r2', label: '精确金额诱导', severity: 'high',
+      { id: 'e004-r2', type: 'tactic', label: '精确金额诱导', severity: 'high',
         explanation: '使用精确到小数点的金额（¥3,860.00）和红色大字强调，利用"意外之财"心理降低你的警惕性。金额越精确，看起来越"真实"。',
         correctAction: '金额是否精确与是否是诈骗无关。不要因为金额看起来合理就放松警惕。' },
-      { id: 'e004-r3', label: '"逾期视为放弃"施压', severity: 'high',
+      { id: 'e004-r3', type: 'tactic', label: '"逾期视为放弃"施压', severity: 'high',
         explanation: '以"放弃退税资格"作为损失威胁，利用人们对金钱损失的厌恶心理。这是经典的"损失框架"施压手法。',
         correctAction: '税务退税申请确实有期限，但不会以这种方式通知。应通过官方APP或网站查询。' },
-      { id: 'e004-r4', label: '可疑的"申请退税"按钮', severity: 'high',
+      { id: 'e004-r4', type: 'evidence', label: '可疑的"申请退税"按钮', severity: 'high',
         explanation: '按钮将导向钓鱼网站，可能要求你填写银行卡信息或下载恶意APP。真正的退税只能通过"个人所得税"官方APP办理。',
         correctAction: '退税只能通过国家税务总局"个人所得税"APP（在应用商店下载）办理，绝不会通过邮件链接。' },
-      { id: 'e004-r5', label: '要求提供身份证号', severity: 'high',
+      { id: 'e004-r5', type: 'evidence', label: '要求提供身份证号', severity: 'high',
         explanation: '通过邮件链接提供身份证号码是严重的个人信息泄露风险。这些信息可被用于身份盗用、贷款诈骗等。',
         correctAction: '永远不要通过邮件链接输入身份证号等敏感个人信息。' },
-      { id: 'e004-r6', label: '要求提供手机验证码', severity: 'critical',
+      { id: 'e004-r6', type: 'evidence', label: '要求提供手机验证码', severity: 'critical',
         explanation: '要求提供"手机验证码"是最危险的信号。任何正规机构都不会要求你提供验证码。验证码只应由你本人在官方渠道使用。',
         correctAction: '手机验证码是最后一道安全防线。任何人要求你提供验证码都是骗子——没有例外。' },
-      { id: 'e004-r7', label: '仿冒官网域名', severity: 'critical',
+      { id: 'e004-r7', type: 'evidence', label: '仿冒官网域名', severity: 'critical',
         explanation: '国家税务总局的官方网址是 www.chinatax.gov.cn，而非 www.tax-gov.cn。钓鱼者使用了看似合理的简化域名来迷惑用户。',
         correctAction: '核对官方网站域名。中国政府网站统一使用 .gov.cn 域名，格式通常为 www.xxx.gov.cn。' }
     ]
@@ -1586,6 +1733,7 @@ const EMAILS = [
     scenario: 'techsupport',
     difficulty: 2,
     title: 'IT部门密码更新通知',
+    fromRiskId: 'e005-r8',
     email: {
       subject: '【IT部门】全体员工密码策略更新 — 请在本周五前完成',
       from: { name: 'IT服务台', email: 'it-helpdesk@company-it.cn' },
@@ -1610,27 +1758,35 @@ const EMAILS = [
       attachments: [{ name: '密码策略更新说明.pdf', size: '245KB' }]
     },
     riskPoints: [
-      { id: 'e005-r1', label: '虚构的管理委员会决议', severity: 'medium',
+      { id: 'e005-r1', type: 'evidence', label: '虚构的管理委员会决议', severity: 'medium',
         explanation: '"信息安全管理委员会最新决议"听起来很正式，但你从未听说过这个委员会的存在。钓鱼邮件经常引用不存在的组织或文件来增加权威感。',
         correctAction: 'IT政策变更通常通过公司内部公告系统或OA通知，不会仅通过一封邮件。' },
-      { id: 'e005-r2', label: '滥用"等保2.0"专业术语', severity: 'medium',
+      { id: 'e005-r2', type: 'tactic', label: '滥用"等保2.0"专业术语', severity: 'medium',
         explanation: '引用"等级保护2.0"这类专业法规术语来增加邮件的权威性和紧迫性。即使你不太了解这些术语，也会觉得"这是合规要求，必须配合"。',
         correctAction: '合规要求通常有专门的培训和通知流程，不会突然通过邮件要求执行。' },
-      { id: 'e005-r3', label: '"本周五前"截止时限', severity: 'medium',
+      { id: 'e005-r3', type: 'tactic', label: '"本周五前"截止时限', severity: 'medium',
         explanation: '给出一个看似合理的截止日期（本周五），配合"全体员工"的普遍性要求，降低个别员工的警觉感。',
         correctAction: '通过公司内部渠道（OA、企业微信、公告栏）核实是否真的有密码更新要求。' },
-      { id: 'e005-r4', label: '伪造的专业密码策略', severity: 'medium',
+      { id: 'e005-r4', type: 'tactic', label: '伪造的专业密码策略', severity: 'medium',
         explanation: '列出看起来合理的密码要求（12位、特殊字符等），使邮件看起来像真正的IT通知。但"不能与最近6次相同"暗示系统已经存储了你之前的密码——这本身就是安全隐患。',
         correctAction: '密码策略细节不应成为你信任邮件的理由。重点在于核实通知来源是否可信。' },
-      { id: 'e005-r5', label: '密码更新按钮', severity: 'critical',
+      { id: 'e005-r5', type: 'evidence', label: '密码更新按钮', severity: 'critical',
         explanation: '点击后会跳转到仿冒的密码输入页面，要求你输入当前密码和新密码。一旦输入，攻击者就获得了你的当前密码。这是整个钓鱼攻击的核心目的。',
         correctAction: '密码更新应通过公司的SSO门户或AD自助服务页面，而非邮件中的链接。' },
-      { id: 'e005-r6', label: '"账户停用"威胁', severity: 'high',
+      { id: 'e005-r6', type: 'tactic', label: '"账户停用"威胁', severity: 'high',
         explanation: '以"账户停用"作为威胁，迫使员工优先处理这件事而忽略验证步骤。失去工作账户访问权限是对上班族最直接的威胁之一。',
         correctAction: 'IT部门不会因单一操作未完成就停用账户。会有提前通知、提醒和行政流程。' },
-      { id: 'e005-r7', label: '虚假的安全签名声明', severity: 'high',
+      { id: 'e005-r7', type: 'evidence', label: '虚假的安全签名声明', severity: 'high',
         explanation: '声称"经IT服务台安全签名验证"来打消你的疑虑。但这句话本身就没有任何技术验证意义——任何人都可以在邮件中写上这句话。',
-        correctAction: '邮件签名验证是技术层面的事（如DKIM、S/MIME），不是邮件正文中的一句声明。' }
+        correctAction: '邮件签名验证是技术层面的事（如DKIM、S/MIME），不是邮件正文中的一句声明。' },
+      { id: 'e005-r8', type: 'evidence', label: '发件人域名冒用IT部门', severity: 'high',
+        explanation: '发件地址是 it-helpdesk@company-it.cn，而邮件正文中留下的官方联系方式却是 it-helpdesk@company.com。同一封邮件里出现两个"IT服务台"，其中必然有一个是假的。',
+        correctAction: '用正文或公司通讯录中的官方地址/电话与IT服务台核实，不要用发件人地址回复。' }
+    ],
+    nextSteps: [
+      '密码修改只走公司 SSO / AD 自助入口：自己手动输入门户地址，绝不通过邮件链接。',
+      '用正文中 @company.com 的官方联系方式向 IT 服务台核实是否真有此通知。',
+      '收到来路不明的 PDF 附件不要打开，先转发给 IT 安全部门检查。'
     ]
   },
 
@@ -1640,6 +1796,7 @@ const EMAILS = [
     scenario: 'data',
     difficulty: 4,
     title: '数据泄露紧急通知',
+    fromRiskId: 'e006-r9',
     email: {
       subject: '【安全警报】您的账户数据可能已在暗网泄露',
       from: { name: '安全态势感知平台', email: 'alert@cyber-security-ops.com' },
@@ -1667,30 +1824,38 @@ const EMAILS = [
       attachments: []
     },
     riskPoints: [
-      { id: 'e006-r1', label: '"暗网监控"模糊技术包装', severity: 'medium',
+      { id: 'e006-r1', type: 'tactic', label: '"暗网监控"模糊技术包装', severity: 'medium',
         explanation: '使用"暗网监控系统"这类听起来很专业但你无法验证的技术术语。普通人无法核实暗网数据，这正是钓鱼者利用的信息不对称。',
         correctAction: '如果你真的关心数据泄露，使用 Have I Been Pwned 等知名工具查询，而非通过邮件链接。' },
-      { id: 'e006-r2', label: '精确时间戳增加可信度', severity: 'medium',
+      { id: 'e006-r2', type: 'tactic', label: '精确时间戳增加可信度', severity: 'medium',
         explanation: '提供精确到分钟的时间戳（2026年5月28日 23:41），让邮件看起来像来自一个真实的监控系统。精确的技术细节是增加可信度的常用手段。',
         correctAction: '技术细节的精确度不代表内容的真实性。攻击者可以编造任何看起来专业的数据。' },
-      { id: 'e006-r3', label: '模糊的泄露来源', severity: 'medium',
+      { id: 'e006-r3', type: 'tactic', label: '模糊的泄露来源', severity: 'medium',
         explanation: '"某大型招聘平台"故意不指明具体平台名称，这样无论哪个招聘平台泄露数据，你都会觉得"说的可能是真的"。',
         correctAction: '真正的安全通知会明确告知泄露的具体来源和你的具体受影响账户。' },
-      { id: 'e006-r4', label: '提及"密码哈希"制造恐慌', severity: 'high',
+      { id: 'e006-r4', type: 'tactic', label: '提及"密码哈希"制造恐慌', severity: 'high',
         explanation: '"密码哈希"听起来技术性很强且威胁很大，但普通用户不清楚哈希与明文密码的区别。这个术语被用来最大化恐慌效果。',
         correctAction: '了解基础安全知识：密码哈希≠明文密码，但如果你的密码太简单，确实可能被破解。定期更新密码是好习惯。' },
-      { id: 'e006-r5', label: '看似合理的安全建议', severity: 'medium',
+      { id: 'e006-r5', type: 'tactic', label: '看似合理的安全建议', severity: 'medium',
         explanation: '邮件中混合了真实的安全建议（修改密码、启用MFA）和钓鱼陷阱（点击链接查看报告）。真假混杂是最难识别的钓鱼手法。',
         correctAction: '安全建议本身是对的，但执行渠道不对。通过官方渠道独立执行，不通过邮件中的链接。' },
-      { id: 'e006-r6', label: '引导点击查看"泄露报告"', severity: 'high',
+      { id: 'e006-r6', type: 'evidence', label: '引导点击查看"泄露报告"', severity: 'high',
         explanation: '诱导你点击链接查看"完整泄露报告"。这个链接可能导向钓鱼网站，要求你输入当前密码来"检查"是否泄露——从而真正泄露你的密码。',
         correctAction: '不要通过邮件链接查看安全报告。在官方安全平台或通过IT部门查询。' },
-      { id: 'e006-r7', label: '红色CTA按钮诱导', severity: 'high',
+      { id: 'e006-r7', type: 'evidence', label: '红色CTA按钮诱导', severity: 'high',
         explanation: '使用红色按钮配合"查看泄露报告 & 立即防护"的双重承诺，结合恐惧心理，形成强烈的点击冲动。这是将恐惧转化为行动的经典设计。',
         correctAction: '不要因恐惧而仓促行动。恐慌时做的决定往往是最危险的。' },
-      { id: 'e006-r8', label: '"系统自动触发"免责话术', severity: 'low',
+      { id: 'e006-r8', type: 'tactic', label: '"系统自动触发"免责话术', severity: 'low',
         explanation: '"系统自动触发"试图让你相信这是来自自动化安全系统的通知，而非人为发送的钓鱼邮件。配合凌晨3点的发送时间，进一步强化"自动化"的印象。',
-        correctAction: '发送时间和免责声明都不能作为信任邮件的依据。' }
+        correctAction: '发送时间和免责声明都不能作为信任邮件的依据。' },
+      { id: 'e006-r9', type: 'evidence', label: '发件人来自陌生域名', severity: 'medium',
+        explanation: '一家你从未听说过的"安全态势感知平台"从 cyber-security-ops.com 给你发信。正规的安全通知要么来自你所在公司，要么来自你注册过服务的平台，不会来路不明。',
+        correctAction: '问自己：我注册过这家服务吗？它与我的公司有关系吗？两者都否，即可直接判定为钓鱼。' }
+    ],
+    nextSteps: [
+      '不点"查看泄露报告"链接；自行通过知名泄露查询服务或公司 IT 部门核实。',
+      '如确有担心，在官方入口手动修改密码并开启两步验证，而不是通过邮件里的任何操作。',
+      '顺手核对发件域名：真正服务过你的平台，域名一定是你认识的。'
     ]
   }
 ];
@@ -1705,13 +1870,67 @@ const app = {
     queue: [],          // email ids to practice
     currentIdx: 0,      // index in queue
     selected: new Set(), // selected risk point ids for current email
+    falseTaps: 0,        // taps on non-risk areas for current email
     results: [],         // per-email results
     phase: 'selecting'   // selecting | reviewing
   },
 
   // ─── Init ───
   init() {
+    this.bindDelegatedEvents();
     this.renderLanding();
+  },
+
+  // One delegated listener survives every re-render of #emailContent
+  bindDelegatedEvents() {
+    const ec = document.getElementById('emailContent');
+
+    ec.addEventListener('click', (e) => {
+      if (this.state.phase !== 'selecting') return;
+      const rpEl = e.target.closest('.risk-point');
+      if (rpEl && ec.contains(rpEl) && rpEl.dataset.riskId) {
+        e.preventDefault();
+        this.toggleRiskPoint(rpEl.dataset.riskId, rpEl);
+      } else if (e.target.closest('.email-header, .email-body, .email-attachments, .email-footer')) {
+        // Tapped plain text: count as a false tap (gentle penalty, transparent rule)
+        e.preventDefault();
+        this.registerFalseTap();
+      }
+    });
+
+    ec.addEventListener('keydown', (e) => {
+      if (this.state.phase !== 'selecting') return;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const rpEl = e.target.closest('.risk-point');
+      if (rpEl && ec.contains(rpEl) && rpEl.dataset.riskId) {
+        e.preventDefault();
+        this.toggleRiskPoint(rpEl.dataset.riskId, rpEl);
+      }
+    });
+
+    // Header home button keyboard support
+    const home = document.getElementById('headerHome');
+    home.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.goHome(); }
+    });
+  },
+
+  registerFalseTap() {
+    this.state.falseTaps++;
+    this.showToast(`这里没有标记为风险点 · 误点 <span class="num">-1</span> 分（本次第 <span class="num">${this.state.falseTaps}</span> 次）`);
+  },
+
+  showToast(html) {
+    let toast = document.getElementById('fpToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'fpToast';
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = html;
+    toast.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
   },
 
   // ─── Navigation ───
@@ -1774,7 +1993,9 @@ const app = {
       const emails = EMAILS.filter(e => e.scenario === key);
       const avgDiff = emails.length ? (emails.reduce((s, e) => s + e.difficulty, 0) / emails.length).toFixed(1) : 0;
       return `
-        <div class="scenario-card" data-scenario="${key}" onclick="app.startScenario('${key}')">
+        <div class="scenario-card" data-scenario="${key}" role="button" tabindex="0" aria-label="开始${s.name}训练，共${count}题"
+             onclick="app.startScenario('${key}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();app.startScenario('${key}');}">
           <div class="scenario-icon">${s.icon}</div>
           <div class="scenario-name">${s.name}</div>
           <div class="scenario-desc">${s.desc}</div>
@@ -1795,7 +2016,11 @@ const app = {
   },
 
   startAll() {
-    this.beginPractice(EMAILS.map(e => e.id));
+    // Gentle ramp: easier emails first
+    const ids = EMAILS.slice()
+      .sort((a, b) => a.difficulty - b.difficulty || a.id.localeCompare(b.id))
+      .map(e => e.id);
+    this.beginPractice(ids);
   },
 
   startRandom() {
@@ -1821,11 +2046,15 @@ const app = {
     if (!data) return;
 
     this.state.selected = new Set();
+    this.state.falseTaps = 0;
     this.state.phase = 'selecting';
 
     // Email content
     const ec = document.getElementById('emailContent');
     const initial = data.email.from.name.charAt(0);
+    const fromAddr = data.fromRiskId
+      ? `<span class="risk-point" data-risk-id="${data.fromRiskId}" tabindex="0" role="button" aria-pressed="false">${this.escapeHtml(data.email.from.email)}</span>`
+      : this.escapeHtml(data.email.from.email);
     ec.innerHTML = `
       <div class="email-header">
         <div class="email-subject">${this.escapeHtml(data.email.subject)}</div>
@@ -1833,7 +2062,7 @@ const app = {
           <div class="email-avatar">${initial}</div>
           <div class="email-sender-info">
             <div class="email-sender-name">${this.escapeHtml(data.email.from.name)}</div>
-            <div class="email-sender-addr">&lt;${this.escapeHtml(data.email.from.email)}&gt;</div>
+            <div class="email-sender-addr">&lt;${fromAddr}&gt;</div>
           </div>
           <div class="email-date">${this.escapeHtml(data.email.date)}</div>
         </div>
@@ -1858,15 +2087,13 @@ const app = {
         <button class="footer-btn">&#9733; 标记</button>
       </div>`;
 
-    // Bind click events on risk points
+    // Make body risk points keyboard-reachable
     ec.querySelectorAll('.risk-point').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (this.state.phase !== 'selecting') return;
-        const rid = el.dataset.riskId;
-        if (!rid) return;
-        this.toggleRiskPoint(rid, el);
-      });
+      if (!el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-pressed', 'false');
+      }
     });
 
     this.renderSidePanel(data);
@@ -1881,9 +2108,11 @@ const app = {
     if (sel.has(rid)) {
       sel.delete(rid);
       el.classList.remove('selected');
+      el.setAttribute('aria-pressed', 'false');
     } else {
       sel.add(rid);
       el.classList.add('selected');
+      el.setAttribute('aria-pressed', 'true');
     }
     this.renderSelectedList();
   },
@@ -1934,9 +2163,9 @@ const app = {
         <div class="instruction-box">
           <div class="instruction-text">
             <strong>&#128269; 找出这封邮件中的可疑之处</strong><br>
-            点击邮件中 <span style="border-bottom:2px dashed var(--red-dim)">鼠标悬停时出现下划线</span> 的文字来标记你认为的风险点。<br>
-            <span style="color:var(--text-muted);font-size:12px">提示：仔细阅读邮件，将鼠标移到你觉得可疑的文字上，发现下划线后点击标记。</span><br>
-            标记完成后点击「提交答案」查看解析。
+            点击邮件里你觉得可疑的<strong>文字、按钮、链接或发件人地址</strong>进行标记，再点一次可取消。<br>
+            <span style="color:var(--text-muted);font-size:12px">计分：命中按严重度加分；点错的地方每次 <strong>-1</strong> 分。先想清楚再下手，仔细读完全信再作答。</span><br>
+            标记完成后点击「提交答案」查看逐条解读和下一步建议。
           </div>
         </div>
       </div>
@@ -1954,6 +2183,7 @@ const app = {
 
   // ─── Submit ───
   submitAnswer() {
+    if (this.state.phase !== 'selecting') return; // guard against double submit
     const data = this.getCurrentEmail();
     if (!data) return;
 
@@ -1961,12 +2191,11 @@ const app = {
     const selected = this.state.selected;
     const riskPoints = data.riskPoints;
 
-    // Calculate score
+    // Calculate score: hit = +weight, false tap = -1 (floor 0), miss = 0
     let score = 0;
     let maxScore = 0;
     let hits = 0;
     let misses = 0;
-    let falsePositives = 0;
 
     const results = riskPoints.map(rp => {
       const weight = { low: 1, medium: 2, high: 3, critical: 4 }[rp.severity] || 2;
@@ -1977,8 +2206,8 @@ const app = {
       return { ...rp, hit, weight };
     });
 
-    // Mark false selections (not real risk points) - for future extensibility
-    // In v1 all clickable items ARE risk points, so no false positives from clicking
+    const falsePositives = this.state.falseTaps;
+    score = Math.max(0, score - falsePositives);
 
     const percentage = maxScore > 0 ? Math.round(score / maxScore * 100) : 0;
 
@@ -1995,25 +2224,30 @@ const app = {
         el.classList.add('result-missed');
       }
       el.style.cursor = 'default';
+      el.setAttribute('aria-pressed', 'true'); // revealed as a real risk point
     });
 
     // Render results panel
-    this.renderResultsPanel(data, results, score, maxScore, percentage, hits, misses);
+    this.renderResultsPanel(data, results, score, maxScore, percentage, hits, misses, falsePositives);
     this.updateHeader();
   },
 
-  renderResultsPanel(data, results, score, maxScore, percentage, hits, misses) {
+  renderResultsPanel(data, results, score, maxScore, percentage, hits, misses, falsePositives) {
     const panel = document.getElementById('sidePanel');
 
     const grade = percentage >= 90 ? 'S' : percentage >= 75 ? 'A' : percentage >= 60 ? 'B' : percentage >= 40 ? 'C' : 'D';
     const gradeClass = grade.toLowerCase();
     const messages = {
-      S: '出色！你对钓鱼邮件有极高的敏感度。',
-      A: '很好！大部分风险点都被你发现了。',
+      S: '出色！这些手法基本都逃不过你的眼睛。',
+      A: '很好，大部分风险点都被你发现了。',
       B: '不错，但还有遗漏。注意那些隐蔽的手法。',
-      C: '需要加强训练，很多风险点没被识别。',
-      D: '建议重新学习钓鱼邮件识别课程。'
+      C: '一半以上的线索没被识别。对照下方解读再练一次。',
+      D: '建议先读完下方解读，再用这封邮件重新练习。'
     };
+
+    const typeLabel = t => t === 'evidence'
+      ? '<span class="risk-type risk-type-evidence">硬证据</span>'
+      : '<span class="risk-type risk-type-tactic">话术手法</span>';
 
     panel.innerHTML = `
       <div class="result-score-section">
@@ -2035,8 +2269,8 @@ const app = {
           <div class="result-stat-label">遗漏</div>
         </div>
         <div class="result-stat stat-false">
-          <div class="result-stat-num">${data.riskPoints.length}</div>
-          <div class="result-stat-label">总计</div>
+          <div class="result-stat-num">${falsePositives}</div>
+          <div class="result-stat-label">误点</div>
         </div>
       </div>
 
@@ -2047,6 +2281,7 @@ const app = {
             <div class="risk-card-header">
               <div class="risk-status ${r.hit ? 'hit' : 'miss'}">${r.hit ? '✓' : '✗'}</div>
               <div class="risk-card-title">${this.escapeHtml(r.label)}</div>
+              ${typeLabel(r.type)}
             </div>
             <div class="risk-explanation">
               <div class="risk-explanation-label">为什么危险</div>
@@ -2060,21 +2295,37 @@ const app = {
         `).join('')}
       </div>
 
+      ${data.nextSteps && data.nextSteps.length ? `
+      <div class="next-steps">
+        <div class="panel-label">下一步怎么做</div>
+        <ul>
+          ${data.nextSteps.map(s => `<li>${this.escapeHtml(s)}</li>`).join('')}
+        </ul>
+      </div>` : ''}
+
       <div class="panel-actions">
         <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="app.nextEmail()">
           ${this.state.currentIdx < this.state.queue.length - 1 ? '下一封邮件 →' : '查看训练报告'}
         </button>
         <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="app.goHome()">返回首页</button>
       </div>`;
+
+    // On mobile the results live below the email — bring them into view
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      panel.querySelector('.result-score-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   },
 
   // ─── Navigation ───
   skipEmail() {
+    if (this.state.phase !== 'selecting') return; // guard
     const data = this.getCurrentEmail();
     if (!data) return;
+    // Same weight scale as submitAnswer so totals stay comparable
+    const maxScore = data.riskPoints.reduce((s, r) => s + ({ low: 1, medium: 2, high: 3, critical: 4 }[r.severity] || 2), 0);
     this.state.results.push({
       score: 0,
-      maxScore: data.riskPoints.length * 2,
+      maxScore,
       percentage: 0,
       hits: 0,
       misses: data.riskPoints.length,
@@ -2103,6 +2354,7 @@ const app = {
     const overallPct = totalMax > 0 ? Math.round(totalScore / totalMax * 100) : 0;
     const totalHits = results.reduce((s, r) => s + r.hits, 0);
     const totalMisses = results.reduce((s, r) => s + r.misses, 0);
+    const totalFalse = results.reduce((s, r) => s + (r.falsePositives || 0), 0);
 
     const grade = overallPct >= 90 ? 'S' : overallPct >= 75 ? 'A' : overallPct >= 60 ? 'B' : overallPct >= 40 ? 'C' : 'D';
 
@@ -2111,13 +2363,13 @@ const app = {
       <h2 class="complete-title">训练完成</h2>
       <p class="complete-subtitle">
         你已完成 ${results.length} 封邮件的找茬训练。<br>
-        继续练习可以提升你对钓鱼邮件的识别敏感度。
+        比起分数，更重要的是记住每条线索的判断依据和下一步的处理方式。
       </p>
 
       <div class="final-stats">
         <div class="final-stat">
           <div class="final-stat-num">${overallPct}%</div>
-          <div class="final-stat-label">总正确率</div>
+          <div class="final-stat-label">总得分率</div>
         </div>
         <div class="final-stat">
           <div class="final-stat-num" style="color:var(--green)">${totalHits}</div>
@@ -2126,6 +2378,10 @@ const app = {
         <div class="final-stat">
           <div class="final-stat-num" style="color:var(--red)">${totalMisses}</div>
           <div class="final-stat-label">遗漏风险点</div>
+        </div>
+        <div class="final-stat">
+          <div class="final-stat-num" style="color:var(--text-secondary)">${totalFalse}</div>
+          <div class="final-stat-label">误点次数</div>
         </div>
       </div>
 
