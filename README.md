@@ -1,6 +1,8 @@
-# 钓鱼邮件找茬训练 · Phishing Email Trainer
+# WKJ-Phishing
 
-> 互动式钓鱼邮件识别训练 | Interactive phishing email awareness training
+> 钓鱼邮件找茬训练 · Interactive Phishing Email Awareness Training
+
+**简体中文** | [English](README.en.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
