@@ -10,7 +10,7 @@ A fully static, single-page training tool: read a simulated email, mark whatever
 
 ## Try it online
 
-**[https://keji-wang.github.io/phishing-email-trainer/](https://keji-wang.github.io/phishing-email-trainer/)**
+**[https://keji-wang.github.io/wkj-phishing/](https://keji-wang.github.io/wkj-phishing/)**
 
 No sign-up, no backend, no tracking — everything loads with the page itself. The training interface is currently in Chinese.
 
@@ -47,8 +47,8 @@ The scoring is designed to reward careful reading and precise marking, not blind
 ## Run locally
 
 ```bash
-git clone https://github.com/Keji-Wang/phishing-email-trainer.git
-cd phishing-email-trainer
+git clone https://github.com/Keji-Wang/wkj-phishing.git
+cd wkj-phishing
 
 # any static server works
 python -m http.server 8000

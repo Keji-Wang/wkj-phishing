@@ -10,7 +10,7 @@
 
 ## 在线体验
 
-**[https://keji-wang.github.io/phishing-email-trainer/](https://keji-wang.github.io/phishing-email-trainer/)**
+**[https://keji-wang.github.io/wkj-phishing/](https://keji-wang.github.io/wkj-phishing/)**
 
 无需登录、无后台、无跟踪，所有内容随页面一次性加载。
 
@@ -47,8 +47,8 @@
 ## 本地运行
 
 ```bash
-git clone https://github.com/Keji-Wang/phishing-email-trainer.git
-cd phishing-email-trainer
+git clone https://github.com/Keji-Wang/wkj-phishing.git
+cd wkj-phishing
 
 # 任意静态服务器即可
 python -m http.server 8000
