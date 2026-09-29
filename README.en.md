@@ -2,7 +2,7 @@
 
 > Interactive phishing email awareness training · 钓鱼邮件找茬训练
 
-[简体中文](README.md) | **English**
+English | [中文](README.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -124,6 +124,7 @@ Notes:
 ## Contact
 
 - X (Twitter): [@JiafuWang](https://x.com/JiafuWang)
+- More from the same author: [github.com/Keji-Wang](https://github.com/Keji-Wang)
 
 ## License
 

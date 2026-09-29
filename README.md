@@ -2,7 +2,7 @@
 
 > 钓鱼邮件找茬训练 · Interactive Phishing Email Awareness Training
 
-**简体中文** | [English](README.en.md)
+中文 | [English](README.en.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -123,6 +123,7 @@ docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 ## 联系
 
 - X（Twitter）：[@JiafuWang](https://x.com/JiafuWang)
+- 更多来自同一作者：[github.com/Keji-Wang](https://github.com/Keji-Wang)
 
 ## 许可证
 
