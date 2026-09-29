@@ -127,7 +127,7 @@ docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 
 ## 许可证
 
-[MIT](LICENSE) © Jeffrey Wang
+[MIT](LICENSE) © 2026 Jeffrey Wang (Keji-Wang)
 
 ---
 
