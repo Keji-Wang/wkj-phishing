@@ -121,6 +121,10 @@ Notes:
 - No progress or score history is stored (resets on refresh) — a deliberate privacy trade-off;
 - The interface is currently Chinese-only.
 
+## Contact
+
+- X (Twitter): [@JiafuWang](https://x.com/JiafuWang)
+
 ## License
 
 [MIT](LICENSE) © Jeffrey Wang

@@ -14,38 +14,38 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Surface */
-  --bg-deep: #0a0c10;
-  --bg-base: #0f1218;
-  --bg-raised: #161b24;
-  --bg-card: #1a1f2b;
-  --bg-hover: #222938;
-  --bg-active: #2a3345;
+  /* Surface — light "mail client" theme */
+  --bg-deep: #f7f6f3;
+  --bg-base: #ffffff;
+  --bg-raised: #f2f0ec;
+  --bg-card: #ffffff;
+  --bg-hover: #eceae5;
+  --bg-active: #e3e0d9;
 
   /* Text */
-  --text-primary: #e8ecf1;
-  --text-secondary: #8893a7;
-  --text-muted: #505a6e;
-  --text-inverse: #0a0c10;
+  --text-primary: #1f2329;
+  --text-secondary: #57606c;
+  --text-muted: #8a92a0;
+  --text-inverse: #ffffff;
 
-  /* Accent */
-  --amber: #f0a030;
-  --amber-dim: #b87a20;
-  --amber-glow: rgba(240,160,48,0.15);
-  --amber-bright: #ffc048;
+  /* Accent (dimmed for light backgrounds) */
+  --amber: #b87a1a;
+  --amber-dim: #96660f;
+  --amber-glow: rgba(184,122,26,0.10);
+  --amber-bright: #a06a12;
 
   /* Semantic */
-  --red: #f04848;
-  --red-dim: #c03030;
-  --red-glow: rgba(240,72,72,0.12);
-  --green: #40c870;
-  --green-dim: #289050;
-  --green-glow: rgba(64,200,112,0.12);
-  --blue: #4890f0;
+  --red: #d93025;
+  --red-dim: #b3271e;
+  --red-glow: rgba(217,48,36,0.08);
+  --green: #1e8e4e;
+  --green-dim: #16713f;
+  --green-glow: rgba(30,142,78,0.08);
+  --blue: #1a66d9;
 
   /* Border */
-  --border: #1e2530;
-  --border-light: #2a3345;
+  --border: #e6e3dd;
+  --border-light: #d6d2ca;
 
   /* Radius */
   --r-sm: 6px;
@@ -57,12 +57,12 @@
   --font-display: 'JetBrains Mono', monospace;
   --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Score grades */
-  --grade-s: #ffc048;
-  --grade-a: #40c870;
-  --grade-b: #4890f0;
-  --grade-c: #f0a030;
-  --grade-d: #f04848;
+  /* Score grades (light-theme legible) */
+  --grade-s: #b8860b;
+  --grade-a: #1e8e4e;
+  --grade-b: #1a66d9;
+  --grade-c: #b87a1a;
+  --grade-d: #d93025;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -84,8 +84,8 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(240,160,48,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(72,144,240,0.03) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(200,135,26,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(26,102,217,0.03) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
@@ -95,7 +95,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.015;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
@@ -112,7 +112,7 @@ body::after {
   position: fixed;
   top: 0; left: 0; right: 0;
   height: 56px;
-  background: rgba(15,18,24,0.85);
+  background: rgba(255,255,255,0.90);
   backdrop-filter: blur(16px) saturate(180%);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -144,9 +144,9 @@ body::after {
   gap: 2px;
 }
 
-.logo-main { color: #4a90e2; }
+.logo-main { color: var(--blue); }
 .logo-phish { color: #ffffff; }
-.logo-hunt { color: #f0a030; }
+.logo-hunt { color: var(--amber-dim); }
 
 .header-logo .shield {
   width: 28px;
@@ -246,7 +246,7 @@ body::after {
   gap: 6px;
   padding: 6px 14px;
   background: var(--amber-glow);
-  border: 1px solid rgba(240,160,48,0.2);
+  border: 1px solid rgba(200,135,26,0.2);
   border-radius: 20px;
   font-family: var(--font-display);
   font-size: 11px;
@@ -342,7 +342,7 @@ body::after {
 .scenario-card:hover {
   border-color: var(--border-light);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 32px rgba(31,35,41,0.10);
 }
 
 .scenario-card:hover::before { opacity: 1; }
@@ -359,23 +359,23 @@ body::after {
   margin-bottom: 16px;
 }
 
-.scenario-card[data-scenario="urgency"] { --card-accent: #f04848; }
-.scenario-card[data-scenario="urgency"] .scenario-icon { background: rgba(240,72,72,0.1); }
+.scenario-card[data-scenario="urgency"] { --card-accent: #d93025; }
+.scenario-card[data-scenario="urgency"] .scenario-icon { background: rgba(217,48,36,0.1); }
 
 .scenario-card[data-scenario="impersonation"] { --card-accent: #4890f0; }
-.scenario-card[data-scenario="impersonation"] .scenario-icon { background: rgba(72,144,240,0.1); }
+.scenario-card[data-scenario="impersonation"] .scenario-icon { background: rgba(26,102,217,0.1); }
 
 .scenario-card[data-scenario="financial"] { --card-accent: #f0a030; }
-.scenario-card[data-scenario="financial"] .scenario-icon { background: rgba(240,160,48,0.1); }
+.scenario-card[data-scenario="financial"] .scenario-icon { background: rgba(200,135,26,0.1); }
 
 .scenario-card[data-scenario="techsupport"] { --card-accent: #40c870; }
-.scenario-card[data-scenario="techsupport"] .scenario-icon { background: rgba(64,200,112,0.1); }
+.scenario-card[data-scenario="techsupport"] .scenario-icon { background: rgba(30,142,78,0.1); }
 
 .scenario-card[data-scenario="delivery"] { --card-accent: #a078f0; }
-.scenario-card[data-scenario="delivery"] .scenario-icon { background: rgba(160,120,240,0.1); }
+.scenario-card[data-scenario="delivery"] .scenario-icon { background: rgba(122,84,205,0.1); }
 
 .scenario-card[data-scenario="data"] { --card-accent: #f06090; }
-.scenario-card[data-scenario="data"] .scenario-icon { background: rgba(240,96,144,0.1); }
+.scenario-card[data-scenario="data"] .scenario-icon { background: rgba(216,64,128,0.1); }
 
 .scenario-name {
   font-weight: 600;
@@ -427,13 +427,13 @@ body::after {
 
 .btn-primary {
   background: var(--amber);
-  color: var(--bg-deep);
+  color: #fff;
 }
 
 .btn-primary:hover {
   background: var(--amber-bright);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(240,160,48,0.3);
+  box-shadow: 0 4px 16px rgba(200,135,26,0.3);
 }
 
 .btn-ghost {
@@ -484,8 +484,8 @@ body::after {
   border-radius: var(--r-xl);
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.02),
-    0 8px 40px rgba(0,0,0,0.4);
+    0 0 0 1px rgba(31,35,41,0.04),
+    0 8px 32px rgba(31,35,41,0.08);
 }
 
 .email-toolbar {
@@ -568,7 +568,7 @@ body::after {
   justify-content: center;
   font-weight: 700;
   font-size: 14px;
-  color: var(--bg-deep);
+  color: #fff;
   flex-shrink: 0;
 }
 
@@ -679,7 +679,7 @@ body::after {
 
 .risk-point.selected {
   border-bottom: 2px solid var(--red);
-  background: rgba(240,72,72,0.15);
+  background: rgba(217,48,36,0.15);
   border-radius: 3px;
 }
 
@@ -732,14 +732,14 @@ body::after {
 
 .risk-point.result-missed {
   border-bottom: 2px solid var(--red);
-  background: rgba(240,72,72,0.1);
+  background: rgba(217,48,36,0.1);
   cursor: default;
   animation: missedPulse 1.5s ease-in-out 2;
 }
 
 @keyframes missedPulse {
-  0%, 100% { background: rgba(240,72,72,0.1); }
-  50% { background: rgba(240,72,72,0.2); }
+  0%, 100% { background: rgba(217,48,36,0.1); }
+  50% { background: rgba(217,48,36,0.2); }
 }
 
 .risk-point.result-missed::after {
@@ -770,7 +770,7 @@ body::after {
   display: inline-block;
   padding: 10px 28px;
   background: var(--amber);
-  color: var(--bg-deep);
+  color: #fff;
   font-weight: 600;
   font-size: 14px;
   border-radius: var(--r-sm);
@@ -791,7 +791,7 @@ body::after {
 .email-cta.risk-point.selected {
   background: var(--red);
   color: white;
-  box-shadow: 0 0 0 3px rgba(240,72,72,0.3);
+  box-shadow: 0 0 0 3px rgba(217,48,36,0.3);
 }
 
 .email-link {
@@ -809,7 +809,7 @@ body::after {
 
 .email-link.risk-point.selected {
   text-decoration-color: var(--red);
-  background: rgba(240,72,72,0.1);
+  background: rgba(217,48,36,0.1);
   border-radius: 2px;
 }
 
@@ -864,13 +864,13 @@ body::after {
 .tag-scenario {
   background: var(--amber-glow);
   color: var(--amber);
-  border: 1px solid rgba(240,160,48,0.2);
+  border: 1px solid rgba(200,135,26,0.2);
 }
 
 .tag-diff {
-  background: rgba(72,144,240,0.1);
+  background: rgba(26,102,217,0.1);
   color: var(--blue);
-  border: 1px solid rgba(72,144,240,0.2);
+  border: 1px solid rgba(26,102,217,0.2);
 }
 
 /* Instruction box */
@@ -976,8 +976,8 @@ body::after {
 }
 
 .btn-submit:hover {
-  background: #ff5050;
-  box-shadow: 0 4px 20px rgba(240,72,72,0.3);
+  background: #e04b3f;
+  box-shadow: 0 4px 20px rgba(217,48,36,0.3);
 }
 
 .btn-submit:disabled {
@@ -1021,11 +1021,11 @@ body::after {
   border: 3px solid var(--border);
 }
 
-.score-circle.grade-s::before { border-color: var(--grade-s); box-shadow: 0 0 20px rgba(255,192,72,0.2); }
-.score-circle.grade-a::before { border-color: var(--grade-a); box-shadow: 0 0 20px rgba(64,200,112,0.2); }
+.score-circle.grade-s::before { border-color: var(--grade-s); box-shadow: 0 0 20px rgba(184,134,11,0.2); }
+.score-circle.grade-a::before { border-color: var(--grade-a); box-shadow: 0 0 20px rgba(30,142,78,0.2); }
 .score-circle.grade-b::before { border-color: var(--grade-b); }
 .score-circle.grade-c::before { border-color: var(--grade-c); }
-.score-circle.grade-d::before { border-color: var(--grade-d); box-shadow: 0 0 20px rgba(240,72,72,0.2); }
+.score-circle.grade-d::before { border-color: var(--grade-d); box-shadow: 0 0 20px rgba(217,48,36,0.2); }
 
 .score-num {
   font-family: var(--font-display);
@@ -1256,15 +1256,15 @@ body::after {
 }
 
 .risk-type-evidence {
-  background: rgba(72,144,240,0.12);
+  background: rgba(26,102,217,0.12);
   color: var(--blue);
-  border: 1px solid rgba(72,144,240,0.25);
+  border: 1px solid rgba(26,102,217,0.25);
 }
 
 .risk-type-tactic {
-  background: rgba(240,160,48,0.1);
+  background: rgba(200,135,26,0.1);
   color: var(--amber);
-  border: 1px solid rgba(240,160,48,0.25);
+  border: 1px solid rgba(200,135,26,0.25);
 }
 
 .risk-card-title {
@@ -1275,8 +1275,8 @@ body::after {
 .next-steps {
   margin: 0 24px 20px;
   padding: 16px;
-  background: rgba(64,200,112,0.06);
-  border: 1px solid rgba(64,200,112,0.2);
+  background: rgba(30,142,78,0.06);
+  border: 1px solid rgba(30,142,78,0.2);
   border-radius: var(--r-md);
 }
 
@@ -1302,19 +1302,19 @@ body::after {
   flex-shrink: 0;
 }
 
-/* ─── False-tap toast ─── */
+/* ─── False-tap toast (dark snackbar stays legible on the light theme) ─── */
 #fpToast {
   position: fixed;
   left: 50%;
   bottom: 32px;
   transform: translateX(-50%) translateY(8px);
-  background: var(--bg-active);
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
+  background: #2b3038;
+  border: 1px solid #2b3038;
+  color: #f5f6f8;
   font-size: 13px;
   padding: 10px 18px;
   border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 24px rgba(31,35,41,0.25);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
@@ -1327,7 +1327,7 @@ body::after {
   transform: translateX(-50%) translateY(0);
 }
 
-#fpToast .num { color: var(--amber); font-weight: 600; }
+#fpToast .num { color: #ffc048; font-weight: 600; }
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE
@@ -1369,10 +1369,10 @@ body::after {
     z-index: 90;
     margin-top: 0;
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(15,18,24,0.95);
+    background: rgba(255,255,255,0.96);
     backdrop-filter: blur(16px);
     border-top: 1px solid var(--border-light);
-    box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
+    box-shadow: 0 -8px 24px rgba(31,35,41,0.12);
   }
 
   .panel-actions .btn-skip { display: none; }
@@ -1685,7 +1685,7 @@ const EMAILS = [
       to: 'wangming@company.com',
       date: '2026年5月27日 14:20',
       body: `<p>尊敬的纳税人：</p>
-<p>根据2025年度个人所得税汇算清缴结果，<span class="risk-point" data-risk-id="e004-r1">您符合退税条件</span>，应退税额为 <span class="risk-point" data-risk-id="e004-r2"><strong style="color:#e74c3c;font-size:18px">¥ 3,860.00</strong></span>。</p>
+<p>根据2025年度个人所得税汇算清缴结果，<span class="risk-point" data-risk-id="e004-r1">您符合退税条件</span>，应退税额为 <span class="risk-point" data-risk-id="e004-r2"><strong style="color:#d93025;font-size:18px">¥ 3,860.00</strong></span>。</p>
 <p><span class="risk-point" data-risk-id="e004-r3">请于2026年6月15日前完成退税申请，逾期将视为自动放弃退税资格。</span></p>
 <p>请点击下方按钮进入退税申请页面：</p>
 <p style="text-align:center;margin:20px 0">
@@ -1754,7 +1754,7 @@ const EMAILS = [
 <p><span class="risk-point" data-risk-id="e005-r6">如您在本周五前未完成密码更新，您的账户将被临时停用</span>，需联系IT服务台人工恢复。</p>
 <p style="font-size:12px;color:#888;margin-top:16px">如有疑问，请联系 IT 服务台：it-helpdesk@company.com<br>
 <span class="risk-point" data-risk-id="e005-r7">本邮件经IT服务台安全签名验证，请放心操作。</span></p>
-<p style="font-size:11px;color:#aaa;margin-top:8px">IT服务台 | 信息技术部</p>`,
+<p style="font-size:11px;color:#8a8f98;margin-top:8px">IT服务台 | 信息技术部</p>`,
       attachments: [{ name: '密码策略更新说明.pdf', size: '245KB' }]
     },
     riskPoints: [
@@ -1804,7 +1804,7 @@ const EMAILS = [
       date: '2026年5月29日 03:17',
       body: `<p>尊敬的用户：</p>
 <p>我们的 <span class="risk-point" data-risk-id="e006-r1">暗网监控系统</span> 于 <span class="risk-point" data-risk-id="e006-r2">2026年5月28日 23:41 (UTC+8)</span> 检测到一个新泄露的数据包，其中包含与您关联的账户信息：</p>
-<p style="background:#1a1a2e;padding:14px;border-radius:8px;font-size:13px;margin:12px 0;color:#e8e8e8;font-family:monospace;border-left:3px solid #f04848">
+<p style="background:#f6f5f2;padding:14px;border-radius:8px;font-size:13px;margin:12px 0;color:#3a3f47;font-family:monospace;border-left:3px solid #d93025">
 泄露来源：<span class="risk-point" data-risk-id="e006-r3">某大型招聘平台（2025年12月泄露）</span><br>
 涉及字段：邮箱、手机号、<span class="risk-point" data-risk-id="e006-r4">密码哈希</span><br>
 匹配置信度：92.7%<br>
@@ -1817,7 +1817,7 @@ const EMAILS = [
   <li>启用多因素认证</li>
 </ol>
 <p style="text-align:center;margin:20px 0">
-  <a class="email-cta risk-point" data-risk-id="e006-r7" href="#" style="background:#f04848">查看我的泄露报告 &amp; 立即防护</a>
+  <a class="email-cta risk-point" data-risk-id="e006-r7" href="#" style="background:#d93025">查看我的泄露报告 &amp; 立即防护</a>
 </p>
 <p style="color:#888;font-size:12px;margin-top:20px">安全态势感知平台 | 威胁情报中心<br>
 <span class="risk-point" data-risk-id="e006-r8">本通知为系统自动触发，如非本人请忽略</span></p>`,

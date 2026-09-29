@@ -120,6 +120,10 @@ docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 - 不保存练习进度或历史成绩（刷新即重置），这是有意的隐私取舍；
 - 界面语言目前只有中文。
 
+## 联系
+
+- X（Twitter）：[@JiafuWang](https://x.com/JiafuWang)
+
 ## 许可证
 
 [MIT](LICENSE) © Jeffrey Wang
