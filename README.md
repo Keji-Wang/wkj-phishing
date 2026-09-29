@@ -141,6 +141,7 @@ docker run -d -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 ## 联系
 
 - X（Twitter）：[@JiafuWang](https://x.com/JiafuWang)
+- 邮箱：[keji.dev@outlook.com](mailto:keji.dev@outlook.com)
 - 更多来自同一作者：[github.com/Keji-Wang](https://github.com/Keji-Wang)
 
 ## 许可证
