@@ -113,6 +113,7 @@ All exercises live in the `EMAILS` array inside `index.html`, one object per ema
 ## Contact
 
 - X (Twitter): [@JiafuWang](https://x.com/JiafuWang)
+- Email：[keji.dev@outlook.com](mailto:keji.dev@outlook.com)
 - More from the same author: [github.com/Keji-Wang](https://github.com/Keji-Wang)
 
 ## License
