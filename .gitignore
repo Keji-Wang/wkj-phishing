@@ -15,3 +15,6 @@ Thumbs.db
 # Temporary
 *.tmp
 .TEMP/
+
+# Internal PRD (contains internal roadmap, keep out of the public repo)
+PRD_钓鱼邮件找茬系统_v0.1.md
